@@ -1,3 +1,3 @@
-export class Size{
-    constructor(public height: number, public width: number){}
+export class Size {
+    constructor(public height: number, public width: number) {}
 }
