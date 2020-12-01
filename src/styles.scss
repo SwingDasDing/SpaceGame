@@ -1,0 +1,21 @@
+html,
+body {
+  margin: 0 auto;
+  overflow: hidden;
+  user-select: none;
+  cursor: url(img/cursor-16x16.png) 8 8, auto;
+}
+
+.stats {
+  > * {
+    display: block;
+    text-align: center;
+  }
+
+  position: fixed;
+  display: block;
+  padding: 0 4px;
+  right: 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
