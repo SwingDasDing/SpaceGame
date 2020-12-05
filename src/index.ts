@@ -20,7 +20,7 @@ class Main {
     private _rAF: number = 0; // ms
     private _lastTimestamp = 0;
     private _timeSinceStart = 0;
-    private _timeSincelastShot = 0;
+    private _timeSinceLastShot = 0;
 
     private _fpsVal: number = 0;
     private _player: Player;
@@ -194,10 +194,10 @@ class Main {
     }
 
     private handleFiring(deltaTime: number, rpm: number): void {
-        this._timeSincelastShot += deltaTime;
-        if (InputHandler.downKeys.m1 && this._timeSincelastShot > 60 / rpm) {
+        this._timeSinceLastShot += deltaTime;
+        if (InputHandler.downKeys.m1 && this._timeSinceLastShot > 60 / rpm) {
             this.createProjectile();
-            this._timeSincelastShot = 0;
+            this._timeSinceLastShot = 0;
         }
     }
 

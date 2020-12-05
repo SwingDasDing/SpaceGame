@@ -20063,7 +20063,7 @@ var Main = /*#__PURE__*/function () {
 
     this._lastTimestamp = 0;
     this._timeSinceStart = 0;
-    this._timeSincelastShot = 0;
+    this._timeSinceLastShot = 0;
     this._fpsVal = 0;
     this._entities = [];
     this._projectiles = [];
@@ -20197,11 +20197,11 @@ var Main = /*#__PURE__*/function () {
   }, {
     key: "handleFiring",
     value: function handleFiring(deltaTime, rpm) {
-      this._timeSincelastShot += deltaTime;
+      this._timeSinceLastShot += deltaTime;
 
-      if (input_handler_service_1.InputHandler.downKeys.m1 && this._timeSincelastShot > 60 / rpm) {
+      if (input_handler_service_1.InputHandler.downKeys.m1 && this._timeSinceLastShot > 60 / rpm) {
         this.createProjectile();
-        this._timeSincelastShot = 0;
+        this._timeSinceLastShot = 0;
       }
     }
   }, {
