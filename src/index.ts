@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { DownKeys } from './classes/down-keys.class';
+import { Enemy } from './classes/enemy.class';
 import { Entity } from './classes/entity.class';
 import { Player } from './classes/player.class';
 import { Point } from './classes/point.class';
@@ -8,29 +8,45 @@ import { Projectile } from './classes/projectile.class';
 import { Size } from './classes/size.class';
 import { Star } from './classes/star.class';
 import { Vector2d } from './classes/vector2d.class';
-import { Keys } from './enums/keys.enum';
+import { InputHandler } from './services/input-handler.service';
 
 class Main {
     private _canvas: HTMLCanvasElement;
     private _fpsCounterEl: HTMLSpanElement;
     private _timerEl: HTMLSpanElement;
+    private _imageEl: HTMLImageElement;
+
     private _context: CanvasRenderingContext2D;
     private _rAF: number = 0; // ms
     private _lastTimestamp = 0;
     private _timeSinceStart = 0;
+    private _timeSincelastShot = 0;
+
     private _fpsVal: number = 0;
     private _player: Player;
-    private _downKeys: DownKeys = new DownKeys();
-    private _mousePosition: Point = new Point(0, 0);
     private _entities: Entity[] = [];
+
+    private _projectiles: Entity[] = [];
+
+    private _images: HTMLImageElement[] = [];
 
     constructor() {
         this._canvas = document.querySelector('#canvasEl');
         this._fpsCounterEl = document.querySelector('#fpsCounterEl');
         this._timerEl = document.querySelector('#timerEl');
+        this._imageEl = document.querySelector('#imageEl');
+
+        const image: HTMLImageElement = new Image(256, 256);
+        image.src = require('./img/ship-2-256x256.png');
+
+        image.onload = () => {
+            this._images.push(image);
+            this.init();
+        };
     }
 
     public init(): void {
+        InputHandler.init();
         this._context = this._canvas.getContext('2d');
         this._canvas.width = window.innerWidth;
         this._canvas.height = window.innerHeight;
@@ -43,95 +59,33 @@ class Main {
         this.generateStars();
         this.countFps();
 
-        const initialPosition = new Point(0, 0);
-        const initialVelocity = new Vector2d(0, 0);
-        const initialSize = new Size(60, 40);
+        const initialPlayerPosition = new Point(0, 0);
+        const initialPlayerVelocity = new Vector2d(0, 0);
+        const initialPlayerSize = new Size(96, 96);
 
         this._player = new Player(
             this._context,
-            initialPosition,
-            initialVelocity,
-            initialSize,
+            initialPlayerPosition,
+            initialPlayerVelocity,
+            initialPlayerSize,
+            this._images[0],
             0
         );
-        this._entities.push(this._player);
+
+        const initialEnemyPosition = new Point(-300, -300);
+        const initialEnemyVelocity = new Vector2d(2, 1);
+        const initialEnemySize = new Size(100, 50);
+
+        const enemy = new Enemy(
+            this._context,
+            initialEnemyPosition,
+            initialEnemyVelocity,
+            initialEnemySize,
+            ((Math.PI * 2) / 360) * 180
+        );
+
+        this._entities.push(this._player, enemy);
         this.animate();
-
-        window.addEventListener('mousemove', (event: MouseEvent) => {
-            this._mousePosition = new Point(event.x, event.y);
-        });
-
-        window.addEventListener('click', (event: MouseEvent) => {
-            const vX = Math.cos(this._player.angle - Math.PI / 2);
-            const vY = Math.sin(this._player.angle - Math.PI / 2);
-            const velocity = new Vector2d(vX, vY).multiply(5);
-
-            const p: Projectile = new Projectile(
-                this._context,
-                _.clone(this._player.position),
-                velocity,
-                this._player.angle,
-                5,
-                this._player.velocity
-            );
-
-            this._entities.push(p);
-        });
-
-        window.addEventListener('keydown', (event: KeyboardEvent) => {
-            // console.log(event)
-            switch (event.key) {
-                case Keys.W:
-                    this._downKeys.w = true;
-                    break;
-
-                case Keys.S:
-                    this._downKeys.s = true;
-                    break;
-
-                case Keys.D:
-                    this._downKeys.d = true;
-                    break;
-
-                case Keys.A:
-                    this._downKeys.a = true;
-                    break;
-
-                case Keys.Space:
-                    this._downKeys.space = true;
-                    break;
-
-                default:
-                    break;
-            }
-        });
-
-        window.addEventListener('keyup', (event: KeyboardEvent) => {
-            switch (event.key) {
-                case Keys.W:
-                    this._downKeys.w = false;
-                    break;
-
-                case Keys.S:
-                    this._downKeys.s = false;
-                    break;
-
-                case Keys.D:
-                    this._downKeys.d = false;
-                    break;
-
-                case Keys.A:
-                    this._downKeys.a = false;
-                    break;
-
-                case Keys.Space:
-                    this._downKeys.space = false;
-                    break;
-
-                default:
-                    break;
-            }
-        });
 
         window.addEventListener('resize', () => {
             this._canvas.width = window.innerWidth;
@@ -165,15 +119,20 @@ class Main {
 
         this.calculateAngle();
         this.handleVelocity();
+        this.handleFiring(deltaTime, this._player.rpm);
+
+        this._projectiles.forEach((projectile, index) => {
+            projectile.update(deltaTime);
+
+            if (projectile instanceof Projectile) {
+                if (projectile.dead) {
+                    this._projectiles.splice(index, 1);
+                }
+            }
+        });
 
         this._entities.forEach((entity, index) => {
             entity.update(deltaTime);
-
-            if (entity instanceof Projectile) {
-                if (entity.dead) {
-                    this._entities.splice(index, 1);
-                }
-            }
         });
 
         this._lastTimestamp = Date.now();
@@ -181,20 +140,20 @@ class Main {
 
     private handleVelocity() {
         const acceleration = 0.1;
-        if (this._downKeys.w) {
+        if (InputHandler.downKeys.w) {
             this._player.velocity.y -= acceleration;
         }
-        if (this._downKeys.s) {
+        if (InputHandler.downKeys.s) {
             this._player.velocity.y += acceleration;
         }
-        if (this._downKeys.a) {
+        if (InputHandler.downKeys.a) {
             this._player.velocity.x -= acceleration;
         }
-        if (this._downKeys.d) {
+        if (InputHandler.downKeys.d) {
             this._player.velocity.x += acceleration;
         }
 
-        this._player.highFriction = this._downKeys.space;
+        this._player.highFriction = InputHandler.downKeys.space;
     }
 
     private generateStars(): void {
@@ -225,13 +184,38 @@ class Main {
         this._player.angle =
             Math.atan2(
                 this._player.position.y -
-                    this._mousePosition.y +
+                    InputHandler.mousePosition.y +
                     this._canvas.height / 2,
                 this._player.position.x -
-                    this._mousePosition.x +
+                    InputHandler.mousePosition.x +
                     this._canvas.width / 2
             ) -
             Math.PI / 2;
+    }
+
+    private handleFiring(deltaTime: number, rpm: number): void {
+        this._timeSincelastShot += deltaTime;
+        if (InputHandler.downKeys.m1 && this._timeSincelastShot > 60 / rpm) {
+            this.createProjectile();
+            this._timeSincelastShot = 0;
+        }
+    }
+
+    private createProjectile(): void {
+        const vX = Math.cos(this._player.angle - Math.PI / 2);
+        const vY = Math.sin(this._player.angle - Math.PI / 2);
+        const velocity = new Vector2d(vX, vY).multiply(5);
+
+        const p: Projectile = new Projectile(
+            this._context,
+            _.clone(this._player.position),
+            velocity,
+            this._player.angle,
+            5,
+            this._player.velocity
+        );
+
+        this._projectiles.push(p);
     }
 
     private countFps(): void {
@@ -247,4 +231,4 @@ class Main {
 }
 
 const app = new Main();
-app.init();
+// app.init();

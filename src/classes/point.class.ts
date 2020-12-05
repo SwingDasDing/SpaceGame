@@ -6,4 +6,8 @@ export class Point {
         const tempY = this.y - pos.y;
         return Math.hypot(tempX, tempY);
     }
+
+    public static Empty() {
+        return new Point(0, 0);
+    }
 }

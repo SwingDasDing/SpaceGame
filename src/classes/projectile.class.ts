@@ -16,12 +16,13 @@ export class Projectile extends Entity {
     }
 
     public startPosition: Point = _.clone(this.position);
-    public length = 15;
+    public length = 30;
     public distanceTravelled: number = 0;
     public dead = false;
     public initialCompute = true;
     public range = 1500;
     public lifetime: number = 3000; // ms
+    public speed = 800;
 
     public draw(): void {
         this.context.save();
@@ -40,9 +41,9 @@ export class Projectile extends Entity {
 
         this.context.restore();
     }
-    public update(): void {
+    public update(deltaTime: number): void {
         if (this.initialCompute) {
-            this.velocity = this.velocity.add(this.playerVelocity.divide(2));
+            // this.velocity = this.velocity.add(this.playerVelocity.divide(4)); Unsure if this makes the aiming to hard to enjoy
 
             setTimeout(() => {
                 this.dead = true;
@@ -52,7 +53,7 @@ export class Projectile extends Entity {
         }
         this.draw();
 
-        this.applyVelocity();
+        this.applyVelocity(deltaTime);
 
         this.distanceTravelled = this.startPosition.distanceTo(this.position);
 
@@ -61,8 +62,8 @@ export class Projectile extends Entity {
         }
     }
 
-    public applyVelocity(): void {
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
+    public applyVelocity(delta: number): void {
+        this.position.x += this.velocity.x * delta * this.speed;
+        this.position.y += this.velocity.y * delta * this.speed;
     }
 }
