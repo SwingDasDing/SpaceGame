@@ -36,6 +36,7 @@ class Main {
 
     private _cursor: Cursor;
     private _cursorLine: CursorLine;
+    private _backgroundImage: HTMLImageElement;
 
     constructor() {
         InputHandler.init(this._canvas, this._context);
@@ -114,7 +115,8 @@ class Main {
 
         // Reset canvas background
         this._context.fillStyle = 'rgba(0,0,0,1)';
-        this._context.fillRect(
+        this._context.drawImage(
+            this._backgroundImage,
             -this._world.size.width / 2,
             -this._world.size.height / 2,
             this._world.size.width,
@@ -171,27 +173,32 @@ class Main {
     }
 
     private generateStars(): void {
-        for (let index = 0; index < 200; index++) {
+        const starCanvas = document.createElement('canvas');
+        starCanvas.height = this._world.size.height;
+        starCanvas.width = this._world.size.width;
+        const starContext = starCanvas.getContext('2d');
+
+        starContext.fillStyle = 'rgba(0,0,0,1)';
+        starContext.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+        for (let index = 0; index < 2000; index++) {
             const pos = new Point(
-                Helpers.randomBetween(
-                    -this._world.size.width / 2,
-                    -this._world.size.width / 2
-                ),
-                Helpers.randomBetween(
-                    -this._world.size.height / 2,
-                    -this._world.size.height / 2
-                )
+                Helpers.randomBetween(0, starCanvas.width),
+                Helpers.randomBetween(0, starCanvas.height)
             );
-            this._world._entities.push(
-                new Star(
-                    this._context,
-                    pos,
-                    undefined,
-                    Helpers.randomBetween(0, 3),
-                    Math.random()
-                )
+
+            const star = new Star(
+                starContext,
+                pos,
+                undefined,
+                Helpers.randomBetween(0, 3),
+                Math.random()
             );
+            star.update();
         }
+
+        this._backgroundImage = new Image();
+        this._backgroundImage.src = starCanvas.toDataURL();
     }
 
     private calculateAngle() {
