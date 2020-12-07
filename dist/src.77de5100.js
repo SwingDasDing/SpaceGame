@@ -20270,9 +20270,7 @@ var Main = /*#__PURE__*/function () {
       });
       this.focusCamera(); // Reset canvas background
 
-      this._context.fillStyle = 'rgba(0,0,0,1)';
-
-      this._context.fillRect(-this._world.size.width / 2, -this._world.size.height / 2, this._world.size.width, this._world.size.height); // Physics'n'logic stuff
+      this._context.drawImage(this._backgroundImage, -this._world.size.width / 2, -this._world.size.height / 2, this._world.size.width, this._world.size.height); // Physics'n'logic stuff
 
 
       this.calculateRelativeMousePosition();
@@ -20326,11 +20324,21 @@ var Main = /*#__PURE__*/function () {
   }, {
     key: "generateStars",
     value: function generateStars() {
-      for (var index = 0; index < 200; index++) {
-        var pos = new point_class_1.Point(helpers_service_1.Helpers.randomBetween(-this._world.size.width / 2, -this._world.size.width / 2), helpers_service_1.Helpers.randomBetween(-this._world.size.height / 2, -this._world.size.height / 2));
+      var starCanvas = document.createElement('canvas');
+      starCanvas.height = this._world.size.height;
+      starCanvas.width = this._world.size.width;
+      var starContext = starCanvas.getContext('2d');
+      starContext.fillStyle = 'rgba(0,0,0,1)';
+      starContext.fillRect(0, 0, starCanvas.width, starCanvas.height);
 
-        this._world._entities.push(new star_class_1.Star(this._context, pos, undefined, helpers_service_1.Helpers.randomBetween(0, 3), Math.random()));
+      for (var index = 0; index < 2000; index++) {
+        var pos = new point_class_1.Point(helpers_service_1.Helpers.randomBetween(0, starCanvas.width), helpers_service_1.Helpers.randomBetween(0, starCanvas.height));
+        var star = new star_class_1.Star(starContext, pos, undefined, helpers_service_1.Helpers.randomBetween(0, 3), Math.random());
+        star.update();
       }
+
+      this._backgroundImage = new Image();
+      this._backgroundImage.src = starCanvas.toDataURL();
     }
   }, {
     key: "calculateAngle",
@@ -20444,7 +20452,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52484" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57334" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
