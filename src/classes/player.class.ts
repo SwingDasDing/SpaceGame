@@ -19,7 +19,8 @@ export class Player extends Entity {
     public rpm = 900;
     public highFriction: boolean = false;
     public defaultFrictionFactor = 0.995;
-    public highFrictionFactor = 0.97;
+    // public highFrictionFactor = 0.97;
+    public highFrictionFactor = 0.9;
 
     public draw(): void {
         this.context.save();
@@ -35,6 +36,12 @@ export class Player extends Entity {
             this.size.width,
             this.size.height
         );
+        this.context.fillStyle = `rgba(255,255,255,1)`;
+
+        this.context.beginPath();
+        this.context.arc(0, 0, 3, 0, 360);
+        this.context.fill();
+        this.context.closePath();
 
         this.context.restore();
     }

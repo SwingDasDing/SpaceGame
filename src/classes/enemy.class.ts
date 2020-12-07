@@ -65,7 +65,7 @@ export class Enemy extends Entity {
     }
 
     private calculateAngle() {
-        const center = Point.Empty();
+        const center = Point.Empty;
 
         this._angleToPlayer =
             Math.atan2(center.y - this.position.y, center.x - this.position.x) +
