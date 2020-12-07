@@ -2,7 +2,8 @@ html,
 body {
   margin: 0 auto;
   overflow: hidden;
-  user-select: none; }
+  user-select: none;
+  cursor: url(/cursor-4x4.d7b64728.png) 2 2, auto; }
 
 .stats {
   position: fixed;

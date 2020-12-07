@@ -1,4 +1,6 @@
 import * as _ from 'lodash';
+import { CursorLine } from './classes/cursor-line.class';
+import { Cursor } from './classes/cursor.class';
 
 import { Player } from './classes/player.class';
 import { Point } from './classes/point.class';
@@ -32,7 +34,8 @@ class Main {
 
     private _relativeMousePosition: Point = new Point(0, 0);
 
-    private _debugStar: Star;
+    private _cursor: Cursor;
+    private _cursorLine: CursorLine;
 
     constructor() {
         InputHandler.init(this._canvas, this._context);
@@ -74,6 +77,11 @@ class Main {
             this._images[0],
             0
         );
+
+        this._cursor = new Cursor(this._context, new Point(0, 0));
+        this._cursorLine = new CursorLine(this._context, new Point(0, 0));
+
+        this._world._entities.push(this._cursorLine, this._cursor);
 
         this.debug();
 
@@ -118,7 +126,7 @@ class Main {
         this.calculateAngle();
         this.handleVelocity();
         this.handleFiring(deltaTime, this._world._player.rpm);
-        this._debugStar.position = this._relativeMousePosition;
+        this.updateCursor();
 
         // Handle entity updating
         this._world._entities.forEach((entity, index) => {
@@ -269,10 +277,14 @@ class Main {
         this._world._entities.push(
             new Star(this._context, new Point(0, 0), null, 10, 1)
         );
+    }
 
-        // DEBUG: Draw star at relativeMousePos
-        this._debugStar = new Star(this._context, new Point(0, 0), null, 5, 1);
-        this._world._entities.push(this._debugStar);
+    public updateCursor(): void {
+        this._cursor.position = this._relativeMousePosition;
+        this._cursor.rotation = this._world._player.angle;
+
+        this._cursorLine.position = this._world._player.position;
+        this._cursorLine.rotation = this._world._player.angle;
     }
 }
 

@@ -16,19 +16,24 @@ export class Projectile extends Entity {
     }
 
     public startPosition: Point = _.clone(this.position);
-    public length = 30;
+    public length = 15;
     public distanceTravelled: number = 0;
     public dead = false;
     public initialCompute = true;
-    public range = 1500;
+    public range = 2500;
     public lifetime: number = 3000; // ms
-    public speed = 800;
+    public speed = 500;
+    public color = 'rgb(255,0,0)';
 
     public draw(): void {
         this.context.save();
 
-        this.context.strokeStyle = 'white';
+        this.context.strokeStyle = this.color;
+        this.context.shadowColor = this.color;
+
         this.context.lineWidth = 2;
+        this.context.lineCap = 'round';
+        this.context.shadowBlur = 10;
 
         this.context.translate(this.position.x, this.position.y);
         this.context.rotate(this.angle);
@@ -43,7 +48,7 @@ export class Projectile extends Entity {
     }
     public update(deltaTime: number): void {
         if (this.initialCompute) {
-            // this.velocity = this.velocity.add(this.playerVelocity.divide(4)); Unsure if this makes the aiming to hard to enjoy
+            this.velocity = this.velocity.add(this.playerVelocity.divide(4)); // Unsure if this makes the aiming to hard to enjoy
 
             setTimeout(() => {
                 this.dead = true;

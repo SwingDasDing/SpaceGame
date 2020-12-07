@@ -19357,7 +19357,170 @@ var Entity = /*#__PURE__*/function () {
 }();
 
 exports.Entity = Entity;
-},{}],"classes/player.class.ts":[function(require,module,exports) {
+},{}],"classes/cursor-line.class.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CursorLine = void 0;
+
+var entity_class_1 = require("./entity.class");
+
+var CursorLine = /*#__PURE__*/function (_entity_class_1$Entit) {
+  _inherits(CursorLine, _entity_class_1$Entit);
+
+  var _super = _createSuper(CursorLine);
+
+  function CursorLine(context, position) {
+    var _this;
+
+    _classCallCheck(this, CursorLine);
+
+    _this = _super.call(this, context, position, null);
+    _this.context = context;
+    _this.position = position;
+    _this.rotation = 0;
+    _this.length = 10000;
+    return _this;
+  }
+
+  _createClass(CursorLine, [{
+    key: "draw",
+    value: function draw() {
+      this.context.save();
+      this.context.translate(this.position.x, this.position.y);
+      this.context.rotate(this.rotation);
+      this.context.strokeStyle = "rgba(255,255,255,0.3)";
+      this.context.setLineDash([5, 15]);
+      this.context.lineWidth = 1;
+      this.context.beginPath();
+      this.context.moveTo(0, 0);
+      this.context.lineTo(0, -this.length);
+      this.context.stroke();
+      this.context.closePath();
+      this.context.restore();
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.draw();
+    }
+  }]);
+
+  return CursorLine;
+}(entity_class_1.Entity);
+
+exports.CursorLine = CursorLine;
+},{"./entity.class":"classes/entity.class.ts"}],"classes/cursor.class.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Cursor = void 0;
+
+var entity_class_1 = require("./entity.class");
+
+var Cursor = /*#__PURE__*/function (_entity_class_1$Entit) {
+  _inherits(Cursor, _entity_class_1$Entit);
+
+  var _super = _createSuper(Cursor);
+
+  function Cursor(context, position) {
+    var _this;
+
+    var radius = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+
+    _classCallCheck(this, Cursor);
+
+    _this = _super.call(this, context, position, null);
+    _this.context = context;
+    _this.position = position;
+    _this.radius = radius;
+    _this.rotation = 0;
+    _this.innerSpaceFactor = 3;
+    _this.lineWidth = 5;
+    return _this;
+  }
+
+  _createClass(Cursor, [{
+    key: "draw",
+    value: function draw() {
+      this.context.save();
+      this.context.translate(this.position.x, this.position.y);
+      this.context.rotate(this.rotation);
+      this.context.fillStyle = "rgba(255,255,255,1)";
+      this.context.lineWidth = this.lineWidth;
+      this.context.beginPath();
+      this.context.moveTo(0, this.radius / this.innerSpaceFactor);
+      this.context.lineTo(0, this.radius);
+      this.context.moveTo(0, -this.radius / this.innerSpaceFactor);
+      this.context.lineTo(0, -this.radius);
+      this.context.moveTo(this.radius / this.innerSpaceFactor, 0);
+      this.context.lineTo(this.radius, 0);
+      this.context.moveTo(-this.radius / this.innerSpaceFactor, 0);
+      this.context.lineTo(-this.radius, 0);
+      this.context.stroke();
+      this.context.closePath();
+      this.context.restore();
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.draw();
+    }
+  }]);
+
+  return Cursor;
+}(entity_class_1.Entity);
+
+exports.Cursor = Cursor;
+},{"./entity.class":"classes/entity.class.ts"}],"classes/player.class.ts":[function(require,module,exports) {
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -19547,14 +19710,15 @@ var Projectile = /*#__PURE__*/function (_entity_class_1$Entit) {
     _this.radius = radius;
     _this.playerVelocity = playerVelocity;
     _this.startPosition = lodash_1.default.clone(_this.position);
-    _this.length = 30;
+    _this.length = 15;
     _this.distanceTravelled = 0;
     _this.dead = false;
     _this.initialCompute = true;
-    _this.range = 1500;
+    _this.range = 2500;
     _this.lifetime = 3000; // ms
 
-    _this.speed = 800;
+    _this.speed = 500;
+    _this.color = 'rgb(255,0,0)';
     return _this;
   }
 
@@ -19562,8 +19726,11 @@ var Projectile = /*#__PURE__*/function (_entity_class_1$Entit) {
     key: "draw",
     value: function draw() {
       this.context.save();
-      this.context.strokeStyle = 'white';
+      this.context.strokeStyle = this.color;
+      this.context.shadowColor = this.color;
       this.context.lineWidth = 2;
+      this.context.lineCap = 'round';
+      this.context.shadowBlur = 10;
       this.context.translate(this.position.x, this.position.y);
       this.context.rotate(this.angle);
       this.context.beginPath();
@@ -19579,7 +19746,8 @@ var Projectile = /*#__PURE__*/function (_entity_class_1$Entit) {
       var _this2 = this;
 
       if (this.initialCompute) {
-        // this.velocity = this.velocity.add(this.playerVelocity.divide(4)); Unsure if this makes the aiming to hard to enjoy
+        this.velocity = this.velocity.add(this.playerVelocity.divide(4)); // Unsure if this makes the aiming to hard to enjoy
+
         setTimeout(function () {
           _this2.dead = true;
         }, this.lifetime);
@@ -20004,6 +20172,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _ = __importStar(require("lodash"));
 
+var cursor_line_class_1 = require("./classes/cursor-line.class");
+
+var cursor_class_1 = require("./classes/cursor.class");
+
 var player_class_1 = require("./classes/player.class");
 
 var point_class_1 = require("./classes/point.class");
@@ -20066,6 +20238,11 @@ var Main = /*#__PURE__*/function () {
       var initialPlayerVelocity = new vector2d_class_1.Vector2d(0, 0);
       var initialPlayerSize = new size_class_1.Size(64, 64);
       this._world._player = new player_class_1.Player(this._context, initialPlayerPosition, initialPlayerVelocity, initialPlayerSize, this._images[0], 0);
+      this._cursor = new cursor_class_1.Cursor(this._context, new point_class_1.Point(0, 0));
+      this._cursorLine = new cursor_line_class_1.CursorLine(this._context, new point_class_1.Point(0, 0));
+
+      this._world._entities.push(this._cursorLine, this._cursor);
+
       this.debug();
       this.animate();
     }
@@ -20102,7 +20279,7 @@ var Main = /*#__PURE__*/function () {
       this.calculateAngle();
       this.handleVelocity();
       this.handleFiring(deltaTime, this._world._player.rpm);
-      this._debugStar.position = this._relativeMousePosition; // Handle entity updating
+      this.updateCursor(); // Handle entity updating
 
       this._world._entities.forEach(function (entity, index) {
         entity.update(deltaTime);
@@ -20223,12 +20400,15 @@ var Main = /*#__PURE__*/function () {
     key: "debug",
     value: function debug() {
       // DEBUG: Draw star at center
-      this._world._entities.push(new star_class_1.Star(this._context, new point_class_1.Point(0, 0), null, 10, 1)); // DEBUG: Draw star at relativeMousePos
-
-
-      this._debugStar = new star_class_1.Star(this._context, new point_class_1.Point(0, 0), null, 5, 1);
-
-      this._world._entities.push(this._debugStar);
+      this._world._entities.push(new star_class_1.Star(this._context, new point_class_1.Point(0, 0), null, 10, 1));
+    }
+  }, {
+    key: "updateCursor",
+    value: function updateCursor() {
+      this._cursor.position = this._relativeMousePosition;
+      this._cursor.rotation = this._world._player.angle;
+      this._cursorLine.position = this._world._player.position;
+      this._cursorLine.rotation = this._world._player.angle;
     }
   }]);
 
@@ -20236,7 +20416,7 @@ var Main = /*#__PURE__*/function () {
 }();
 
 var app = new Main();
-},{"lodash":"../node_modules/lodash/lodash.js","./classes/player.class":"classes/player.class.ts","./classes/point.class":"classes/point.class.ts","./classes/projectile.class":"classes/projectile.class.ts","./classes/size.class":"classes/size.class.ts","./classes/star.class":"classes/star.class.ts","./classes/vector2d.class":"classes/vector2d.class.ts","./classes/world.class":"classes/world.class.ts","./services/helpers.service":"services/helpers.service.ts","./services/input-handler.service":"services/input-handler.service.ts","./img/ship-2-256x256.png":"img/ship-2-256x256.png"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"lodash":"../node_modules/lodash/lodash.js","./classes/cursor-line.class":"classes/cursor-line.class.ts","./classes/cursor.class":"classes/cursor.class.ts","./classes/player.class":"classes/player.class.ts","./classes/point.class":"classes/point.class.ts","./classes/projectile.class":"classes/projectile.class.ts","./classes/size.class":"classes/size.class.ts","./classes/star.class":"classes/star.class.ts","./classes/vector2d.class":"classes/vector2d.class.ts","./classes/world.class":"classes/world.class.ts","./services/helpers.service":"services/helpers.service.ts","./services/input-handler.service":"services/input-handler.service.ts","./img/ship-2-256x256.png":"img/ship-2-256x256.png"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -20264,7 +20444,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61897" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52484" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
