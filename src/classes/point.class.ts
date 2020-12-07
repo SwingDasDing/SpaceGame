@@ -7,7 +7,7 @@ export class Point {
         return Math.hypot(tempX, tempY);
     }
 
-    public static Empty() {
+    public static get Empty(): Point {
         return new Point(0, 0);
     }
 }

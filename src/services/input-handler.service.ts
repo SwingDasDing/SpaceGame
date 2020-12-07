@@ -6,7 +6,10 @@ export class InputHandler {
     public static downKeys: DownKeys = new DownKeys();
     public static mousePosition: Point = new Point(0, 0);
 
-    public static init() {
+    public static init(
+        canvas: HTMLCanvasElement,
+        context: CanvasRenderingContext2D
+    ) {
         window.addEventListener('mousemove', (event: MouseEvent) => {
             this.mousePosition = new Point(event.x, event.y);
         });
@@ -72,6 +75,12 @@ export class InputHandler {
                 default:
                     break;
             }
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            context.translate(canvas.width / 2, canvas.height / 2);
         });
     }
 }

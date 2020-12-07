@@ -2,8 +2,7 @@ html,
 body {
   margin: 0 auto;
   overflow: hidden;
-  user-select: none;
-  cursor: url(/cursor-16x16.67cbfa69.png) 8 8, auto; }
+  user-select: none; }
 
 .stats {
   position: fixed;
@@ -11,7 +10,7 @@ body {
   padding: 0 4px;
   right: 0;
   color: rgba(255, 255, 255, 0.5);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
   .stats > * {
     display: block;
     text-align: center; }
