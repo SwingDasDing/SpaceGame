@@ -114,7 +114,6 @@ class Main {
         this.focusCamera();
 
         // Reset canvas background
-        this._context.fillStyle = 'rgba(0,0,0,1)';
         this._context.drawImage(
             this._backgroundImage,
             -this._world.size.width / 2,

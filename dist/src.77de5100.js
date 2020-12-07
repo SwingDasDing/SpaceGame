@@ -20270,8 +20270,6 @@ var Main = /*#__PURE__*/function () {
       });
       this.focusCamera(); // Reset canvas background
 
-      this._context.fillStyle = 'rgba(0,0,0,1)';
-
       this._context.drawImage(this._backgroundImage, -this._world.size.width / 2, -this._world.size.height / 2, this._world.size.width, this._world.size.height); // Physics'n'logic stuff
 
 
