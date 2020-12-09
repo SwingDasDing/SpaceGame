@@ -12,7 +12,10 @@
         "member-ordering": false,
         "jsx-no-lambda": false,
         "jsx-boolean-value": false,
-        "member-access": false
+        "member-access": false,
+        "no-empty": false,
+        "typedef": true,
+        "only-arrow-functions": true
     },
     "rulesDirectory": []
 }

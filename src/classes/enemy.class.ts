@@ -1,3 +1,4 @@
+import { Helpers } from '../services/helpers.service';
 import { Entity } from './entity.class';
 import { Point } from './point.class';
 import { Size } from './size.class';
@@ -9,7 +10,7 @@ export class Enemy extends Entity {
         public position: Point,
         public velocity: Vector2d,
         public size: Size,
-        public angle?: number
+        public angle: number
     ) {
         super(context, position, velocity);
     }
@@ -19,6 +20,7 @@ export class Enemy extends Entity {
     public defaultFrictionFactor = 0.995;
     public highFrictionFactor = 0.97;
     private _angleToPlayer: number = 0;
+    public hitBox: Point[];
 
     public draw(): void {
         this.context.save();
@@ -26,27 +28,42 @@ export class Enemy extends Entity {
         const offsetFactor = 0.8;
         this.context.fillStyle = 'rgba(255, 20, 20, 1)';
         this.context.lineWidth = 3;
-        this.context.translate(this.position.x, this.position.y);
-
-        this.context.rotate(this.angle);
 
         this.context.beginPath();
 
-        this.context.moveTo(0, 0 - this.size.height / 2);
-        this.context.lineTo(0 + this.size.width / 2, 0 + this.size.height / 2);
-        this.context.lineTo(0, 0 + (this.size.height / 2) * offsetFactor);
-        this.context.lineTo(0 - this.size.width / 2, 0 + this.size.height / 2);
+        this.hitBox = [
+            new Point(this.position.x, this.position.y - this.size.height / 2),
+            new Point(
+                this.position.x + this.size.width / 2,
+                this.position.y + this.size.height / 2
+            ),
+            new Point(
+                this.position.x,
+                this.position.y + (this.size.height / 2) * offsetFactor
+            ),
+            new Point(
+                this.position.x - this.size.width / 2,
+                this.position.y + this.size.height / 2
+            )
+        ];
 
-        this.context.closePath();
+        this.hitBox.forEach((point: Point, index: number) => {
+            this.hitBox[index] = point.rotate(this.position, this.angle);
+        });
+
+        this.context.moveTo(this.hitBox[0].x, this.hitBox[0].y);
+        for (let i = 1; i < this.hitBox.length; i++) {
+            this.context.lineTo(this.hitBox[i].x, this.hitBox[i].y);
+        }
+
         this.context.fill();
-
         this.context.restore();
     }
 
     update(deltaTime: number): void {
         this.draw();
         this.calculateAngle();
-        this.angle = this._angleToPlayer;
+        // this.angle = this._angleToPlayer;
         // this.velocity.x += 0.1;
         // this.velocity.y += 0.1;
         // this.angle += 0.1;
