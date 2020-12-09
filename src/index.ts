@@ -1,6 +1,8 @@
-import * as _ from 'lodash';
+import { clone, remove } from 'lodash';
 import { CursorLine } from './classes/cursor-line.class';
 import { Cursor } from './classes/cursor.class';
+import { Enemy } from './classes/enemy.class';
+import { Entity } from './classes/entity.class';
 
 import { Player } from './classes/player.class';
 import { Point } from './classes/point.class';
@@ -27,7 +29,7 @@ class Main {
 
     private _previousPos = new Point(0, 0);
 
-    private _world = new World(new Size(5000, 5000));
+    private _world = new World(new Size(10000, 10000));
 
     private _fpsVal: number = 0;
     private _images: HTMLImageElement[] = [];
@@ -39,7 +41,6 @@ class Main {
     private _backgroundImage: HTMLImageElement;
 
     constructor() {
-        InputHandler.init(this._canvas, this._context);
         this.getElements();
 
         const image: HTMLImageElement = new Image(256, 256);
@@ -53,6 +54,8 @@ class Main {
 
     public init(): void {
         this._context = this._canvas.getContext('2d');
+        InputHandler.init(this._canvas, this._context);
+
         this._canvas.width = window.innerWidth;
         this._canvas.height = window.innerHeight;
 
@@ -70,7 +73,7 @@ class Main {
         const initialPlayerVelocity = new Vector2d(0, 0);
         const initialPlayerSize = new Size(64, 64);
 
-        this._world._player = new Player(
+        this._world.player = new Player(
             this._context,
             initialPlayerPosition,
             initialPlayerVelocity,
@@ -82,7 +85,23 @@ class Main {
         this._cursor = new Cursor(this._context, new Point(0, 0));
         this._cursorLine = new CursorLine(this._context, new Point(0, 0));
 
-        this._world._entities.push(this._cursorLine, this._cursor);
+        const enemy1 = new Enemy(
+            this._context,
+            new Point(200, 200),
+            new Vector2d(0, 0),
+            new Size(50, 30),
+            3
+        );
+
+        const enemy2 = new Enemy(
+            this._context,
+            new Point(-200, -200),
+            new Vector2d(0, 0),
+            new Size(50, 30),
+            3
+        );
+
+        this._world.enemies.push(enemy1, enemy2);
 
         this.debug();
 
@@ -98,11 +117,12 @@ class Main {
         }
         this._timeSinceStart = this._timeSinceStart + deltaTime;
         this._timerEl.innerHTML = this._timeSinceStart.toFixed(2).toString();
+
         this._playerPosXEl.innerHTML = Math.round(
-            this._world._player.position.x
+            this._world.player.position.x
         ).toString();
         this._playerPosYEl.innerHTML = Math.round(
-            this._world._player.position.y
+            this._world.player.position.y
         ).toString();
 
         /////////
@@ -126,23 +146,13 @@ class Main {
         this.calculateRelativeMousePosition();
         this.calculateAngle();
         this.handleVelocity();
-        this.handleFiring(deltaTime, this._world._player.rpm);
+        this.handleFiring(deltaTime, this._world.player.rpm);
         this.updateCursor();
 
         // Handle entity updating
-        this._world._entities.forEach((entity, index) => {
-            entity.update(deltaTime);
+        this.updateEntities(deltaTime);
 
-            if (entity instanceof Projectile) {
-                if (entity.dead) {
-                    this._world._entities.splice(index, 1);
-                }
-            }
-        });
-
-        this._world._player.update(deltaTime);
-
-        const playerPos = this._world._player.position;
+        const playerPos = this._world.player.position;
 
         this._context.translate(
             playerPos.x - this._previousPos.x,
@@ -156,19 +166,19 @@ class Main {
     private handleVelocity() {
         const acceleration = 0.1;
         if (InputHandler.downKeys.w) {
-            this._world._player.velocity.y -= acceleration;
+            this._world.player.velocity.y -= acceleration;
         }
         if (InputHandler.downKeys.s) {
-            this._world._player.velocity.y += acceleration;
+            this._world.player.velocity.y += acceleration;
         }
         if (InputHandler.downKeys.a) {
-            this._world._player.velocity.x -= acceleration;
+            this._world.player.velocity.x -= acceleration;
         }
         if (InputHandler.downKeys.d) {
-            this._world._player.velocity.x += acceleration;
+            this._world.player.velocity.x += acceleration;
         }
 
-        this._world._player.highFriction = InputHandler.downKeys.space;
+        this._world.player.highFriction = InputHandler.downKeys.space;
     }
 
     private generateStars(): void {
@@ -180,7 +190,7 @@ class Main {
         starContext.fillStyle = 'rgba(0,0,0,1)';
         starContext.fillRect(0, 0, starCanvas.width, starCanvas.height);
 
-        for (let index = 0; index < 2000; index++) {
+        for (let index = 0; index < 8000; index++) {
             const pos = new Point(
                 Helpers.randomBetween(0, starCanvas.width),
                 Helpers.randomBetween(0, starCanvas.height)
@@ -201,10 +211,10 @@ class Main {
     }
 
     private calculateAngle() {
-        this._world._player.angle =
+        this._world.player.angle =
             Math.atan2(
-                this._relativeMousePosition.y - this._world._player.position.y,
-                this._relativeMousePosition.x - this._world._player.position.x
+                this._relativeMousePosition.y - this._world.player.position.y,
+                this._relativeMousePosition.x - this._world.player.position.x
             ) +
             Math.PI / 2;
     }
@@ -225,20 +235,20 @@ class Main {
     }
 
     private createProjectile(): void {
-        const vX = Math.cos(this._world._player.angle - Math.PI / 2);
-        const vY = Math.sin(this._world._player.angle - Math.PI / 2);
+        const vX = Math.cos(this._world.player.angle - Math.PI / 2);
+        const vY = Math.sin(this._world.player.angle - Math.PI / 2);
         const velocity = new Vector2d(vX, vY).multiply(5);
 
         const p: Projectile = new Projectile(
             this._context,
-            _.clone(this._world._player.position),
+            clone(this._world.player.position),
             velocity,
-            this._world._player.angle,
+            this._world.player.angle,
             5,
-            this._world._player.velocity
+            this._world.player.velocity
         );
 
-        this._world._entities.push(p);
+        this._world.projectiles.push(p);
     }
 
     private countFps(): void {
@@ -262,12 +272,12 @@ class Main {
 
         // Clamp the camera position to the world bounds while centering the camera around the player
         this._world.cameraPosition.x = Helpers.clamp(
-            -this._world._player.position.x + this._canvas.width / 2,
+            -this._world.player.position.x + this._canvas.width / 2,
             -this._world.size.width / 2 + this._canvas.width,
             this._world.size.width / 2
         );
         this._world.cameraPosition.y = Helpers.clamp(
-            -this._world._player.position.y + this._canvas.height / 2,
+            -this._world.player.position.y + this._canvas.height / 2,
             -this._world.size.height / 2 + this._canvas.height,
             this._world.size.height / 2
         );
@@ -280,17 +290,51 @@ class Main {
 
     private debug(): void {
         // DEBUG: Draw star at center
-        this._world._entities.push(
+        this._world.entities.push(
             new Star(this._context, new Point(0, 0), null, 10, 1)
         );
     }
 
     public updateCursor(): void {
         this._cursor.position = this._relativeMousePosition;
-        this._cursor.rotation = this._world._player.angle;
+        this._cursor.rotation = this._world.player.angle;
 
-        this._cursorLine.position = this._world._player.position;
-        this._cursorLine.rotation = this._world._player.angle;
+        this._cursorLine.position = this._world.player.position;
+        this._cursorLine.rotation = this._world.player.angle;
+    }
+
+    public updateEntities(deltaTime: number): void {
+        const entities: Entity[] = [];
+        entities.push(...this._world.projectiles);
+        entities.push(...this._world.enemies);
+        entities.push(this._cursorLine, this._cursor);
+        entities.push(this._world.player);
+        entities.forEach((entity, index) => {
+            entity.update(deltaTime);
+
+            if (entity instanceof Projectile) {
+                const projectile = entity;
+                this._world.enemies.forEach(enemy => {
+                    if (projectile.position.isInside(enemy.hitBox)) {
+                        enemy.dead = true;
+                        projectile.dead = true;
+                    }
+                });
+
+                if (entity.dead) {
+                    this._world.projectiles.splice(index, 1);
+                }
+            }
+
+            if (entity instanceof Enemy) {
+                if (entity.dead) {
+                    remove(
+                        this._world.enemies,
+                        enemy => enemy.id === entity.id
+                    );
+                }
+            }
+        });
     }
 }
 

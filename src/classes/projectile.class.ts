@@ -18,11 +18,10 @@ export class Projectile extends Entity {
     public startPosition: Point = _.clone(this.position);
     public length = 15;
     public distanceTravelled: number = 0;
-    public dead = false;
     public initialCompute = true;
     public range = 2500;
     public lifetime: number = 3000; // ms
-    public speed = 500;
+    public speed = 200;
     public color = 'rgb(255,0,0)';
 
     public draw(): void {

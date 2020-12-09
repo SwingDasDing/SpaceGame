@@ -1,3 +1,4 @@
+import { uniqueId } from 'lodash';
 import { Point } from './point.class';
 import { Vector2d } from './vector2d.class';
 
@@ -7,6 +8,10 @@ export class Entity {
         public position: Point,
         public velocity: Vector2d
     ) {}
+
+    public id: string = uniqueId();
+
+    public dead = false;
 
     public draw(): void {}
 
