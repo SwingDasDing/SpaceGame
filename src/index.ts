@@ -1,14 +1,15 @@
 import * as _ from 'lodash';
-import { CursorLine } from './classes/cursor-line.class';
-import { Cursor } from './classes/cursor.class';
-
-import { Player } from './classes/player.class';
-import { Point } from './classes/point.class';
-import { Projectile } from './classes/projectile.class';
-import { Size } from './classes/size.class';
-import { Star } from './classes/star.class';
-import { Vector2d } from './classes/vector2d.class';
-import { World } from './classes/world.class';
+import {
+    CursorLine,
+    Cursor,
+    Player,
+    Point,
+    Projectile,
+    Size,
+    Star,
+    Vector2d,
+    World
+} from './classes';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
 
@@ -72,6 +73,7 @@ class Main {
 
         this._world._player = new Player(
             this._context,
+            this._world,
             initialPlayerPosition,
             initialPlayerVelocity,
             initialPlayerSize,
@@ -125,8 +127,8 @@ class Main {
         // Physics'n'logic stuff
         this.calculateRelativeMousePosition();
         this.calculateAngle();
-        this.handleVelocity();
-        this.handleFiring(deltaTime, this._world._player.rpm);
+        InputHandler.handleVelocity(this._world);
+        this.handleFiring(deltaTime);
         this.updateCursor();
 
         // Handle entity updating
@@ -151,24 +153,6 @@ class Main {
 
         // More game loop stuff
         this._lastTimestamp = Date.now();
-    }
-
-    private handleVelocity() {
-        const acceleration = 0.1;
-        if (InputHandler.downKeys.w) {
-            this._world._player.velocity.y -= acceleration;
-        }
-        if (InputHandler.downKeys.s) {
-            this._world._player.velocity.y += acceleration;
-        }
-        if (InputHandler.downKeys.a) {
-            this._world._player.velocity.x -= acceleration;
-        }
-        if (InputHandler.downKeys.d) {
-            this._world._player.velocity.x += acceleration;
-        }
-
-        this._world._player.highFriction = InputHandler.downKeys.space;
     }
 
     private generateStars(): void {
@@ -216,29 +200,23 @@ class Main {
         );
     }
 
-    private handleFiring(deltaTime: number, rpm: number): void {
+    private handleFiring(deltaTime: number): void {
         this._timeSinceLastShot += deltaTime;
-        if (InputHandler.downKeys.m1 && this._timeSinceLastShot > 60 / rpm) {
-            this.createProjectile();
+        if (
+            InputHandler.downKeys.m1 &&
+            this._timeSinceLastShot > 60 / this._world._player.weaponPrimary.rpm
+        ) {
+            this._world._player.weaponPrimary.fire();
             this._timeSinceLastShot = 0;
         }
-    }
-
-    private createProjectile(): void {
-        const vX = Math.cos(this._world._player.angle - Math.PI / 2);
-        const vY = Math.sin(this._world._player.angle - Math.PI / 2);
-        const velocity = new Vector2d(vX, vY).multiply(5);
-
-        const p: Projectile = new Projectile(
-            this._context,
-            _.clone(this._world._player.position),
-            velocity,
-            this._world._player.angle,
-            5,
-            this._world._player.velocity
-        );
-
-        this._world._entities.push(p);
+        if (
+            InputHandler.downKeys.m2 &&
+            this._timeSinceLastShot >
+                60 / this._world._player.weaponSecondary.rpm
+        ) {
+            this._world._player.weaponSecondary.fire();
+            this._timeSinceLastShot = 0;
+        }
     }
 
     private countFps(): void {
