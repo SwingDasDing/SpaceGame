@@ -2,21 +2,28 @@ import { Entity } from './entity.class';
 import { Point } from './point.class';
 import { Size } from './size.class';
 import { Vector2d } from './vector2d.class';
+import { LaserConstant } from './weapons/laser-constant/laser-constant.class';
+import { LaserGatling } from './weapons/laser-gatling/laser-gatling.class';
+import { Weapon } from './weapons/weapon.class';
+import { World } from './world.class';
 
 export class Player extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
+        public world: World,
         public position: Point,
         public velocity: Vector2d,
         public size: Size,
         public image: HTMLImageElement,
         public angle?: number
     ) {
-        super(context, position, velocity);
+        super(context, world, position, velocity);
     }
 
+    public weaponPrimary: Weapon = new LaserConstant(this.world, this.context);
+    public weaponSecondary: Weapon = new LaserGatling(this.world, this.context);
+
     public speed = 200;
-    public rpm = 900;
     public highFriction: boolean = false;
     public defaultFrictionFactor = 0.995;
     // public highFrictionFactor = 0.97;

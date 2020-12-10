@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import { Entity } from './entity.class';
-import { Point } from './point.class';
-import { Vector2d } from './vector2d.class';
-import { World } from './world.class';
+import { Point } from '../../point.class';
+import { Vector2d } from '../../vector2d.class';
+import { World } from '../../world.class';
+import { GenericProjectile } from '../generic-projectile.class';
 
-export class Projectile extends Entity {
+export class LaserGatlingProjectile extends GenericProjectile {
     constructor(
         public context: CanvasRenderingContext2D,
         public world: World,
@@ -14,16 +14,17 @@ export class Projectile extends Entity {
         public radius: number,
         public playerVelocity?: Vector2d
     ) {
-        super(context, world, position, velocity);
+        super(context, world, position, velocity, angle);
     }
 
     public startPosition: Point = _.clone(this.position);
     public length = 15;
     public distanceTravelled: number = 0;
-    public initialCompute = true;
-    public range = 2500; // px
+    public dead = false;
+    public initialUpdate = true;
+    public range = 2500;
     public lifetime: number = 3000; // ms
-    public speedFactor = 500; // ¯\_(ツ)_/¯
+    public speedFactor = 500;
     public color = 'rgb(255,0,0)';
 
     public draw(): void {
@@ -47,15 +48,16 @@ export class Projectile extends Entity {
 
         this.context.restore();
     }
+
     public update(deltaTime: number): void {
-        if (this.initialCompute) {
+        if (this.initialUpdate) {
             this.velocity = this.velocity.add(this.playerVelocity.divide(4)); // Unsure if this makes the aiming to hard to enjoy
 
             setTimeout(() => {
                 this.dead = true;
             }, this.lifetime);
 
-            this.initialCompute = false;
+            this.initialUpdate = false;
         }
         this.draw();
 
