@@ -10,26 +10,28 @@ export class LaserConstant extends Weapon {
         super(world, context);
     }
 
-    public rpm: number = 1000;
+    public rpm: number = 3000;
 
-    public fire(): void {
-        this.world._entities.push(this.createProjectile());
+    public fire(deltaTime: number): void {
+        this.world.projectiles.push(this.createProjectile());
     }
 
+    public remove(): void {}
+
     public createProjectile(): GenericProjectile {
-        const vX = Math.cos(this.world._player.angle - Math.PI / 2);
-        const vY = Math.sin(this.world._player.angle - Math.PI / 2);
+        const vX = Math.cos(this.world.player.angle - Math.PI / 2);
+        const vY = Math.sin(this.world.player.angle - Math.PI / 2);
         // const velocity = new Vector2d(vX, vY).multiply(5);
         const velocity = new Vector2d(0, 0);
 
         const p: LaserConstantProjectile = new LaserConstantProjectile(
             this.context,
             this.world,
-            clone(this.world._player.position),
+            clone(this.world.player.position),
             velocity,
-            this.world._player.angle,
+            this.world.player.angle,
             5,
-            velocity
+            this.world.player.velocity
         );
 
         return p;

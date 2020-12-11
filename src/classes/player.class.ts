@@ -5,6 +5,7 @@ import { Vector2d } from './vector2d.class';
 import { LaserConstant } from './weapons/laser-constant/laser-constant.class';
 import { LaserGatling } from './weapons/laser-gatling/laser-gatling.class';
 import { Weapon } from './weapons/weapon.class';
+
 import { World } from './world.class';
 
 export class Player extends Entity {

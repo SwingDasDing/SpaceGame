@@ -4,6 +4,7 @@ import { Player } from './player.class';
 import { Point } from './point.class';
 import { Projectile } from './projectile.class';
 import { Size } from './size.class';
+import { GenericProjectile } from './weapons/generic-projectile.class';
 
 export class World {
     constructor(public size: Size) {}
@@ -11,6 +12,6 @@ export class World {
 
     public player: Player;
     public entities: Entity[] = [];
-    public projectiles: Projectile[] = [];
+    public projectiles: GenericProjectile[] = [];
     public enemies: Enemy[] = [];
 }

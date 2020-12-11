@@ -4,14 +4,14 @@ import {
     Cursor,
     Player,
     Point,
-    Projectile,
     Size,
     Star,
     Vector2d,
     World,
     Enemy,
     Entity
-} from './classes';
+} from './classes/indexer';
+import { GenericProjectile } from './classes/weapons/generic-projectile.class';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
 
@@ -84,8 +84,12 @@ class Main {
             0
         );
 
-        this._cursor = new Cursor(this._context, new Point(0, 0));
-        this._cursorLine = new CursorLine(this._context, new Point(0, 0));
+        this._cursor = new Cursor(this._context, this._world, new Point(0, 0));
+        this._cursorLine = new CursorLine(
+            this._context,
+            this._world,
+            new Point(0, 0)
+        );
 
         const enemy1 = new Enemy(
             this._context,
@@ -216,7 +220,7 @@ class Main {
             InputHandler.downKeys.m1 &&
             this._timeSinceLastShot > 60 / this._world.player.weaponPrimary.rpm
         ) {
-            this._world.player.weaponPrimary.fire();
+            this._world.player.weaponPrimary.fire(deltaTime);
             this._timeSinceLastShot = 0;
         }
         if (
@@ -224,7 +228,7 @@ class Main {
             this._timeSinceLastShot >
                 60 / this._world.player.weaponSecondary.rpm
         ) {
-            this._world.player.weaponSecondary.fire();
+            this._world.player.weaponSecondary.fire(deltaTime);
             this._timeSinceLastShot = 0;
         }
     }
@@ -290,7 +294,7 @@ class Main {
         entities.forEach((entity, index) => {
             entity.update(deltaTime);
 
-            if (entity instanceof Projectile) {
+            if (entity instanceof GenericProjectile) {
                 const projectile = entity;
                 this._world.enemies.forEach(enemy => {
                     if (projectile.position.isInside(enemy.hitBox)) {
@@ -298,10 +302,6 @@ class Main {
                         projectile.dead = true;
                     }
                 });
-
-                if (entity.dead) {
-                    this._world.projectiles.splice(index, 1);
-                }
             }
 
             if (entity instanceof Enemy) {

@@ -7,6 +7,7 @@ export class Weapon {
     ) {}
 
     public rpm: number = 0;
-    public fire(): void {}
+    public fire(deltaTime: number): void {}
+
     public createProjectile(): any {}
 }

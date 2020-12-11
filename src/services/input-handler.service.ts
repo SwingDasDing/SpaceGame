@@ -113,18 +113,18 @@ export class InputHandler {
     public static handleVelocity(world: World) {
         const acceleration = 0.1;
         if (InputHandler.downKeys.w) {
-            world._player.velocity.y -= acceleration;
+            world.player.velocity.y -= acceleration;
         }
         if (InputHandler.downKeys.s) {
-            world._player.velocity.y += acceleration;
+            world.player.velocity.y += acceleration;
         }
         if (InputHandler.downKeys.a) {
-            world._player.velocity.x -= acceleration;
+            world.player.velocity.x -= acceleration;
         }
         if (InputHandler.downKeys.d) {
-            world._player.velocity.x += acceleration;
+            world.player.velocity.x += acceleration;
         }
 
-        world._player.highFriction = InputHandler.downKeys.space;
+        world.player.highFriction = InputHandler.downKeys.space;
     }
 }

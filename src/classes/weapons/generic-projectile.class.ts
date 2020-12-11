@@ -1,3 +1,4 @@
+import { remove, uniqueId } from 'lodash';
 import { Entity } from '../entity.class';
 import { Point } from '../point.class';
 import { Vector2d } from '../vector2d.class';
@@ -14,7 +15,15 @@ export class GenericProjectile extends Entity {
         super(context, world, position, velocity);
     }
 
+    public id = uniqueId();
     public draw(): void {}
 
-    public update(deltaTime: number): void {}
+    public update(deltaTime: number): void {
+        if (this.dead) {
+            remove(
+                this.world.projectiles,
+                projectile => projectile.id === this.id
+            );
+        }
+    }
 }

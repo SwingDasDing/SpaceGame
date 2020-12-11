@@ -33,7 +33,7 @@ export class LaserGatlingProjectile extends GenericProjectile {
         this.context.strokeStyle = this.color;
         this.context.shadowColor = this.color;
 
-        this.context.lineWidth = 2;
+        this.context.lineWidth = 3;
         this.context.lineCap = 'round';
         this.context.shadowBlur = 10;
 
@@ -59,6 +59,7 @@ export class LaserGatlingProjectile extends GenericProjectile {
 
             this.initialUpdate = false;
         }
+        super.update(deltaTime);
         this.draw();
 
         this.applyVelocity(deltaTime);

@@ -13,21 +13,21 @@ export class LaserGatling extends Weapon {
     public rpm: number = 800;
 
     public fire(): void {
-        this.world._entities.push(this.createProjectile());
+        this.world.projectiles.push(this.createProjectile());
     }
 
     public createProjectile(): GenericProjectile {
-        const vX = Math.cos(this.world._player.angle - Math.PI / 2);
-        const vY = Math.sin(this.world._player.angle - Math.PI / 2);
+        const vX = Math.cos(this.world.player.angle - Math.PI / 2);
+        const vY = Math.sin(this.world.player.angle - Math.PI / 2);
         const velocity = new Vector2d(vX, vY).multiply(5);
         const p: LaserGatlingProjectile = new LaserGatlingProjectile(
             this.context,
             this.world,
-            clone(this.world._player.position),
+            clone(this.world.player.position),
             velocity,
-            this.world._player.angle,
+            this.world.player.angle,
             5,
-            this.world._player.velocity
+            this.world.player.velocity
         );
         return p;
     }

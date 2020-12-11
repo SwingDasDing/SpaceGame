@@ -22,7 +22,7 @@ export class LaserConstantProjectile extends GenericProjectile {
     public distanceTravelled: number = 0;
     public dead = false;
     public initialUpdate = true;
-    public lifetime: number = 100; // ms
+    public lifetime: number = 30; // ms
     public speedFactor = 100;
     public color = 'rgb(255,0,0)';
 
@@ -32,7 +32,7 @@ export class LaserConstantProjectile extends GenericProjectile {
         this.context.strokeStyle = this.color;
         this.context.shadowColor = this.color;
 
-        this.context.lineWidth = 2;
+        this.context.lineWidth = 1;
         this.context.lineCap = 'round';
         this.context.shadowBlur = 10;
 
@@ -58,6 +58,8 @@ export class LaserConstantProjectile extends GenericProjectile {
 
             this.initialUpdate = false;
         }
+        super.update(deltaTime);
+
         this.draw();
 
         this.applyVelocity(deltaTime);
