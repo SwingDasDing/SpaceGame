@@ -1,10 +1,11 @@
 import _ from 'lodash';
+import { Enemy } from '../../indexer';
 import { Point } from '../../point.class';
 import { Vector2d } from '../../vector2d.class';
 import { World } from '../../world.class';
-import { GenericProjectile } from '../generic-projectile.class';
+import { Projectile } from '../projectile.class';
 
-export class LaserGatlingProjectile extends GenericProjectile {
+export class LaserGatlingProjectile extends Projectile {
     constructor(
         public context: CanvasRenderingContext2D,
         public world: World,
@@ -20,7 +21,6 @@ export class LaserGatlingProjectile extends GenericProjectile {
     public startPosition: Point = _.clone(this.position);
     public length = 15;
     public distanceTravelled: number = 0;
-    public dead = false;
     public initialUpdate = true;
     public range = 2500;
     public lifetime: number = 3000; // ms
@@ -71,8 +71,16 @@ export class LaserGatlingProjectile extends GenericProjectile {
         }
     }
 
+    public onHit(): void {
+        this.dead = true;
+    }
+
     public applyVelocity(delta: number): void {
         this.position.x += this.velocity.x * delta * this.speedFactor;
         this.position.y += this.velocity.y * delta * this.speedFactor;
+    }
+
+    public collidesWith(enemy: Enemy): boolean {
+        return this.position.isInside(enemy.hitBox);
     }
 }

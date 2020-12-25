@@ -1,10 +1,11 @@
 import { remove, uniqueId } from 'lodash';
+import { Enemy } from '../indexer';
 import { Entity } from '../entity.class';
 import { Point } from '../point.class';
 import { Vector2d } from '../vector2d.class';
 import { World } from '../world.class';
 
-export class GenericProjectile extends Entity {
+export class Projectile extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
         public world: World,
@@ -16,6 +17,8 @@ export class GenericProjectile extends Entity {
     }
 
     public id = uniqueId();
+    public dead: boolean = false;
+
     public draw(): void {}
 
     public update(deltaTime: number): void {
@@ -26,4 +29,8 @@ export class GenericProjectile extends Entity {
             );
         }
     }
+
+    public onHit(): void {}
+
+    public collidesWith(enemy: Enemy): any {}
 }

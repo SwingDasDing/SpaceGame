@@ -4,6 +4,8 @@ import { Size } from './size.class';
 import { Vector2d } from './vector2d.class';
 import { LaserConstant } from './weapons/laser-constant/laser-constant.class';
 import { LaserGatling } from './weapons/laser-gatling/laser-gatling.class';
+import { Railgun } from './weapons/railgun/railgun.class';
+import { RocketPod } from './weapons/rocket-pod/rocket-pod.class';
 import { Weapon } from './weapons/weapon.class';
 import { World } from './world.class';
 
@@ -20,8 +22,10 @@ export class Player extends Entity {
         super(context, world, position, velocity);
     }
 
-    public weaponPrimary: Weapon = new LaserConstant(this.world, this.context);
-    public weaponSecondary: Weapon = new LaserGatling(this.world, this.context);
+    public weaponPrimary: Weapon = new Railgun(this.world, this.context);
+    // public weaponPrimary: Weapon;
+
+    public weaponSecondary: Weapon = new RocketPod(this.world, this.context);
 
     public speed = 200;
     public highFriction: boolean = false;
@@ -36,13 +40,16 @@ export class Player extends Entity {
 
         this.context.rotate(this.angle);
 
-        this.context.drawImage(
-            this.image,
-            -(this.size.width / 2),
-            -(this.size.width / 2),
-            this.size.width,
-            this.size.height
-        );
+        if (this.image.src) {
+            this.context.drawImage(
+                this.image,
+                -(this.size.width / 2),
+                -(this.size.width / 2),
+                this.size.width,
+                this.size.height
+            );
+        }
+
         this.context.fillStyle = `rgba(255,255,255,1)`;
 
         this.context.beginPath();

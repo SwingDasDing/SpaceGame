@@ -7,7 +7,10 @@ export class Weapon {
     ) {}
 
     public rpm: number = 0;
-    public fire(deltaTime: number): void {}
 
+    protected _timeSinceLastShot: number = 0;
+
+    public onUpdate(deltaTime: number): void {}
+    public fire(deltaTime: number): void {}
     public createProjectile(): any {}
 }
