@@ -12,6 +12,7 @@ export class Vector2d {
     public multiply(factor: number) {
         return new Vector2d(this.x * factor, this.y * factor);
     }
+
     public divide(factor: number) {
         return new Vector2d(this.x / factor, this.y / factor);
     }

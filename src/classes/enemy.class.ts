@@ -1,4 +1,4 @@
-import { Helpers } from '../services/helpers.service';
+import { World } from './indexer';
 import { Entity } from './entity.class';
 import { Point } from './point.class';
 import { Size } from './size.class';
@@ -7,12 +7,13 @@ import { Vector2d } from './vector2d.class';
 export class Enemy extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
+        public world: World,
         public position: Point,
         public velocity: Vector2d,
         public size: Size,
         public angle: number
     ) {
-        super(context, position, velocity);
+        super(context, world, position, velocity);
     }
 
     public speed = 200;

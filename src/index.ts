@@ -11,7 +11,7 @@ import {
     Enemy,
     Entity
 } from './classes/indexer';
-import { GenericProjectile } from './classes/weapons/generic-projectile.class';
+import { Projectile } from './classes/weapons/projectile.class';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
 
@@ -33,7 +33,7 @@ class Main {
     private _world = new World(new Size(10000, 10000));
 
     private _fpsVal: number = 0;
-    private _images: HTMLImageElement[] = [];
+    private _images: Map<number, HTMLImageElement> = new Map();
 
     private _relativeMousePosition: Point = new Point(0, 0);
 
@@ -44,16 +44,34 @@ class Main {
     constructor() {
         this.getElements();
 
-        const image: HTMLImageElement = new Image(256, 256);
-        image.src = require('./img/ship-2-256x256.png');
+        const shipImageUrls: Map<number, any> = new Map();
 
-        image.onload = () => {
-            this._images.push(image);
-            this.init();
-        };
+        // shipImageUrls.set(1, require('./img/ship-1-256x256.png'));
+        shipImageUrls.set(2, require('./img/ship-2-256x256.png'));
+        // shipImageUrls.set(3, require('./img/ship-3-256x256.png'));
+        // shipImageUrls.set(4, require('./img/ship-4-256x256.png'));
+
+        shipImageUrls.forEach((url: string, index: number) => {
+            const image: HTMLImageElement = new Image(256, 256);
+            image.src = shipImageUrls.get(index);
+
+            image.onload = () => {
+                this._images.set(index, image);
+                this.init();
+            };
+        });
     }
 
     public init(): void {
+        console.log(
+            Helpers.intersection(
+                new Point(0, 0),
+                new Point(100, 100),
+                new Point(0, 100),
+                new Point(100, 0)
+            )
+        );
+
         this._context = this._canvas.getContext('2d');
         InputHandler.init(this._canvas, this._context);
 
@@ -80,7 +98,7 @@ class Main {
             initialPlayerPosition,
             initialPlayerVelocity,
             initialPlayerSize,
-            this._images[0],
+            this._images.get(2),
             0
         );
 
@@ -90,24 +108,6 @@ class Main {
             this._world,
             new Point(0, 0)
         );
-
-        const enemy1 = new Enemy(
-            this._context,
-            new Point(200, 200),
-            new Vector2d(0, 0),
-            new Size(50, 30),
-            3
-        );
-
-        const enemy2 = new Enemy(
-            this._context,
-            new Point(-200, -200),
-            new Vector2d(0, 0),
-            new Size(50, 30),
-            3
-        );
-
-        this._world.enemies.push(enemy1, enemy2);
 
         this.debug();
 
@@ -189,7 +189,8 @@ class Main {
                 pos,
                 undefined,
                 Helpers.randomBetween(0, 3),
-                Math.random()
+                Math.random(),
+                this._world
             );
             star.update();
         }
@@ -215,22 +216,8 @@ class Main {
     }
 
     private handleFiring(deltaTime: number): void {
-        this._timeSinceLastShot += deltaTime;
-        if (
-            InputHandler.downKeys.m1 &&
-            this._timeSinceLastShot > 60 / this._world.player.weaponPrimary.rpm
-        ) {
-            this._world.player.weaponPrimary.fire(deltaTime);
-            this._timeSinceLastShot = 0;
-        }
-        if (
-            InputHandler.downKeys.m2 &&
-            this._timeSinceLastShot >
-                60 / this._world.player.weaponSecondary.rpm
-        ) {
-            this._world.player.weaponSecondary.fire(deltaTime);
-            this._timeSinceLastShot = 0;
-        }
+        this._world.player.weaponPrimary?.onUpdate(deltaTime);
+        this._world.player.weaponSecondary?.onUpdate(deltaTime);
     }
 
     private countFps(): void {
@@ -272,9 +259,29 @@ class Main {
 
     private debug(): void {
         // DEBUG: Draw star at center
-        this._world.entities.push(
-            new Star(this._context, new Point(0, 0), null, 10, 1)
+        // this._world.entities.push(
+        //     new Star(this._context, new Point(0, 0), null, 10, 1, this._world)
+        // );
+
+        const enemy1 = new Enemy(
+            this._context,
+            this._world,
+            new Point(200, 200),
+            new Vector2d(0, 0),
+            new Size(200, 100),
+            1
         );
+
+        const enemy2 = new Enemy(
+            this._context,
+            this._world,
+            new Point(-200, -200),
+            new Vector2d(0, 0),
+            new Size(50, 30),
+            3
+        );
+
+        this._world.enemies.push(enemy1, enemy2);
     }
 
     public updateCursor(): void {
@@ -291,15 +298,15 @@ class Main {
         entities.push(...this._world.enemies);
         entities.push(this._cursorLine, this._cursor);
         entities.push(this._world.player);
-        entities.forEach((entity, index) => {
+        entities.forEach(entity => {
             entity.update(deltaTime);
 
-            if (entity instanceof GenericProjectile) {
+            if (entity instanceof Projectile) {
                 const projectile = entity;
                 this._world.enemies.forEach(enemy => {
-                    if (projectile.position.isInside(enemy.hitBox)) {
+                    if (projectile.collidesWith(enemy)) {
                         enemy.dead = true;
-                        projectile.dead = true;
+                        projectile.onHit();
                     }
                 });
             }

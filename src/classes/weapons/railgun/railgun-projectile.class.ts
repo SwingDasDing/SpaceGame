@@ -6,7 +6,7 @@ import { Vector2d } from '../../vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
 
-export class LaserConstantProjectile extends Projectile {
+export class RailgunProjectile extends Projectile {
     constructor(
         public context: CanvasRenderingContext2D,
         public world: World,
@@ -20,12 +20,17 @@ export class LaserConstantProjectile extends Projectile {
     }
 
     public startPosition: Point = _.clone(this.position);
-    public length = 1000;
+    public length = 3000;
     public distanceTravelled: number = 0;
     public initialUpdate = true;
-    public lifetime: null; // ms
+    public lifetime = 500; // ms
     public speedFactor = 100;
-    public color = 'rgb(255,0,0)';
+    public color = 'rgba(255,255,255, 1)';
+
+    private alphaReduction = 1 / this.lifetime;
+    private alpha = 1;
+
+    private passedLifetime = 0;
 
     public endPosition: Point;
 
@@ -35,9 +40,9 @@ export class LaserConstantProjectile extends Projectile {
         this.context.strokeStyle = this.color;
         this.context.shadowColor = this.color;
 
-        this.context.lineWidth = 1;
+        this.context.lineWidth = 3;
         this.context.lineCap = 'round';
-        this.context.shadowBlur = 10;
+        this.context.shadowBlur = 20;
 
         this.endPosition = new Point(
             this.position.x,
@@ -60,15 +65,17 @@ export class LaserConstantProjectile extends Projectile {
                     this.dead = true;
                 }, this.lifetime);
             }
-
-            this.initialUpdate = false;
         }
+        this.alpha -= this.alphaReduction * (deltaTime * 1000);
+        this.color = `rgba(255,255,255, ${this.alpha})`;
 
         super.update(deltaTime);
 
         this.draw();
 
         this.applyVelocity(deltaTime);
+
+        this.passedLifetime += deltaTime * 1000;
     }
 
     public onHit(): void {}
@@ -79,19 +86,22 @@ export class LaserConstantProjectile extends Projectile {
     }
 
     public collidesWith(enemy: Enemy): Point {
-        let collision: Point;
+        if (this.passedLifetime < 100) {
+            this.initialUpdate = false;
 
-        let index = 0;
-        for (const point1 of enemy.hitBox) {
-            const point2 = enemy.hitBox[++index] || enemy.hitBox[0];
-            collision = Helpers.intersection(
-                this.position,
-                this.endPosition,
-                point1,
-                point2
-            );
-            if (collision) {
-                return collision;
+            let collision: Point;
+            let index = 0;
+            for (const point1 of enemy.hitBox) {
+                const point2 = enemy.hitBox[++index] || enemy.hitBox[0];
+                collision = Helpers.intersection(
+                    this.position,
+                    this.endPosition,
+                    point1,
+                    point2
+                );
+                if (collision) {
+                    return collision;
+                }
             }
         }
     }

@@ -3,14 +3,19 @@ import { Vector2d } from '../../vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
 import { Weapon } from '../weapon.class';
-import { LaserGatlingProjectile } from './laser-gatling-projectile.class';
+import { RailgunProjectile } from './railgun-projectile.class';
 
-export class LaserGatling extends Weapon {
+export class Railgun extends Weapon {
     constructor(public world: World, public context: CanvasRenderingContext2D) {
         super(world, context);
     }
 
-    public rpm: number = 800;
+    public rpm = 60;
+
+    private _firingDelay = 100; // ms
+    private _token: NodeJS.Timeout;
+
+    public railgunProjectile: Projectile;
 
     public onUpdate(deltaTime: number): void {
         this._timeSinceLastShot += deltaTime;
@@ -23,11 +28,14 @@ export class LaserGatling extends Weapon {
         }
     }
 
+    public remove(): void {}
+
     public createProjectile(): Projectile {
         const vX = Math.cos(this.world.player.angle - Math.PI / 2);
         const vY = Math.sin(this.world.player.angle - Math.PI / 2);
-        const velocity = new Vector2d(vX, vY).multiply(5);
-        const p: LaserGatlingProjectile = new LaserGatlingProjectile(
+        const velocity = new Vector2d(0, 0);
+
+        const p: RailgunProjectile = new RailgunProjectile(
             this.context,
             this.world,
             clone(this.world.player.position),
@@ -36,6 +44,7 @@ export class LaserGatling extends Weapon {
             5,
             this.world.player.velocity
         );
+
         return p;
     }
 }
