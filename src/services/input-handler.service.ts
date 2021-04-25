@@ -1,6 +1,8 @@
 import { DownKeys } from '../classes/down-keys.class';
 import { Point } from '../classes/point.class';
+import { World } from '../classes/world.class';
 import { Keys } from '../enums/keys.enum';
+import { MouseButtons } from '../enums/mouse-buttons.enum';
 
 export class InputHandler {
     public static downKeys: DownKeys = new DownKeys();
@@ -15,11 +17,35 @@ export class InputHandler {
         });
 
         window.addEventListener('mousedown', (event: MouseEvent) => {
-            this.downKeys.m1 = true;
+            event.preventDefault();
+            event.stopPropagation();
+            switch (event.button) {
+                case MouseButtons.Left:
+                    this.downKeys.m1 = true;
+                    break;
+
+                case MouseButtons.Right:
+                    this.downKeys.m2 = true;
+                    break;
+                default:
+                    break;
+            }
         });
 
         window.addEventListener('mouseup', (event: MouseEvent) => {
-            this.downKeys.m1 = false;
+            event.preventDefault();
+            event.stopPropagation();
+            switch (event.button) {
+                case MouseButtons.Left:
+                    this.downKeys.m1 = false;
+                    break;
+
+                case MouseButtons.Right:
+                    this.downKeys.m2 = false;
+                    break;
+                default:
+                    break;
+            }
         });
 
         window.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -82,5 +108,23 @@ export class InputHandler {
             canvas.height = window.innerHeight;
             context.translate(canvas.width / 2, canvas.height / 2);
         });
+    }
+
+    public static handleVelocity(world: World) {
+        const acceleration = 0.1;
+        if (InputHandler.downKeys.w) {
+            world.player.velocity.y -= acceleration;
+        }
+        if (InputHandler.downKeys.s) {
+            world.player.velocity.y += acceleration;
+        }
+        if (InputHandler.downKeys.a) {
+            world.player.velocity.x -= acceleration;
+        }
+        if (InputHandler.downKeys.d) {
+            world.player.velocity.x += acceleration;
+        }
+
+        world.player.highFriction = InputHandler.downKeys.space;
     }
 }

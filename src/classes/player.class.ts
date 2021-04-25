@@ -1,22 +1,32 @@
+import { InputHandler } from '../services/input-handler.service';
 import { Entity } from './entity.class';
 import { Point } from './point.class';
 import { Size } from './size.class';
 import { Vector2d } from './vector2d.class';
+import { LaserConstant } from './weapons/laser-constant/laser-constant.class';
+import { LaserGatling } from './weapons/laser-gatling/laser-gatling.class';
+import { Railgun } from './weapons/railgun/railgun.class';
+import { RocketPod } from './weapons/rocket-pod/rocket-pod.class';
+import { Weapon } from './weapons/weapon.class';
+import { World } from './world.class';
 
 export class Player extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
+        public world: World,
         public position: Point,
         public velocity: Vector2d,
         public size: Size,
         public image: HTMLImageElement,
         public angle?: number
     ) {
-        super(context, position, velocity);
+        super(context, world, position, velocity);
     }
 
+    public weaponPrimary: Weapon = new LaserConstant(this.world, this.context);
+    public weaponSecondary: Weapon = new LaserGatling(this.world, this.context);
+
     public speed = 200;
-    public rpm = 900;
     public highFriction: boolean = false;
     public defaultFrictionFactor = 0.995;
     // public highFrictionFactor = 0.97;
@@ -29,13 +39,16 @@ export class Player extends Entity {
 
         this.context.rotate(this.angle);
 
-        this.context.drawImage(
-            this.image,
-            -(this.size.width / 2),
-            -(this.size.width / 2),
-            this.size.width,
-            this.size.height
-        );
+        if (this.image.src) {
+            this.context.drawImage(
+                this.image,
+                -(this.size.width / 2),
+                -(this.size.width / 2),
+                this.size.width,
+                this.size.height
+            );
+        }
+
         this.context.fillStyle = `rgba(255,255,255,1)`;
 
         this.context.beginPath();
@@ -56,6 +69,17 @@ export class Player extends Entity {
                 : this.defaultFrictionFactor
         );
         this.applyVelocity(deltaTime);
+
+        if (InputHandler.downKeys.m1) {
+            this.weaponPrimary.fire(deltaTime);
+        } else {
+            this.weaponPrimary.stop();
+        }
+        if (InputHandler.downKeys.m2) {
+            this.weaponSecondary.fire(deltaTime);
+        } else {
+            this.weaponSecondary.stop();
+        }
     }
 
     public applyVelocity(delta: number): void {

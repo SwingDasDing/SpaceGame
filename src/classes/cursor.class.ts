@@ -1,13 +1,15 @@
 import { Entity } from './entity.class';
 import { Point } from './point.class';
+import { World } from './world.class';
 
 export class Cursor extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
+        public world: World,
         public position: Point,
         public radius: number = 10
     ) {
-        super(context, position, null);
+        super(context, world, position, null);
     }
 
     public rotation: number = 0;

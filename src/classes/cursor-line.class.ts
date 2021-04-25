@@ -1,12 +1,14 @@
+import { World } from './indexer';
 import { Entity } from './entity.class';
 import { Point } from './point.class';
 
 export class CursorLine extends Entity {
     constructor(
         public context: CanvasRenderingContext2D,
+        public world: World,
         public position: Point
     ) {
-        super(context, position, null);
+        super(context, world, position, null);
     }
 
     public rotation: number = 0;

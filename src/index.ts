@@ -1,16 +1,17 @@
-import { clone, remove } from 'lodash';
-import { CursorLine } from './classes/cursor-line.class';
-import { Cursor } from './classes/cursor.class';
-import { Enemy } from './classes/enemy.class';
-import { Entity } from './classes/entity.class';
-
-import { Player } from './classes/player.class';
-import { Point } from './classes/point.class';
-import { Projectile } from './classes/projectile.class';
-import { Size } from './classes/size.class';
-import { Star } from './classes/star.class';
-import { Vector2d } from './classes/vector2d.class';
-import { World } from './classes/world.class';
+import { remove } from 'lodash';
+import {
+    CursorLine,
+    Cursor,
+    Player,
+    Point,
+    Size,
+    Star,
+    Vector2d,
+    World,
+    Enemy,
+    Entity
+} from './classes/indexer';
+import { Projectile } from './classes/weapons/projectile.class';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
 
@@ -32,7 +33,7 @@ class Main {
     private _world = new World(new Size(10000, 10000));
 
     private _fpsVal: number = 0;
-    private _images: HTMLImageElement[] = [];
+    private _images: Map<number, HTMLImageElement> = new Map();
 
     private _relativeMousePosition: Point = new Point(0, 0);
 
@@ -43,16 +44,34 @@ class Main {
     constructor() {
         this.getElements();
 
-        const image: HTMLImageElement = new Image(256, 256);
-        image.src = require('./img/ship-2-256x256.png');
+        const shipImageUrls: Map<number, any> = new Map();
 
-        image.onload = () => {
-            this._images.push(image);
-            this.init();
-        };
+        // shipImageUrls.set(1, require('./img/ship-1-256x256.png'));
+        shipImageUrls.set(2, require('./img/ship-2-256x256.png'));
+        // shipImageUrls.set(3, require('./img/ship-3-256x256.png'));
+        // shipImageUrls.set(4, require('./img/ship-4-256x256.png'));
+
+        shipImageUrls.forEach((url: string, index: number) => {
+            const image: HTMLImageElement = new Image(256, 256);
+            image.src = shipImageUrls.get(index);
+
+            image.onload = () => {
+                this._images.set(index, image);
+                this.init();
+            };
+        });
     }
 
     public init(): void {
+        console.log(
+            Helpers.intersection(
+                new Point(0, 0),
+                new Point(100, 100),
+                new Point(0, 100),
+                new Point(100, 0)
+            )
+        );
+
         this._context = this._canvas.getContext('2d');
         InputHandler.init(this._canvas, this._context);
 
@@ -75,33 +94,20 @@ class Main {
 
         this._world.player = new Player(
             this._context,
+            this._world,
             initialPlayerPosition,
             initialPlayerVelocity,
             initialPlayerSize,
-            this._images[0],
+            this._images.get(2),
             0
         );
 
-        this._cursor = new Cursor(this._context, new Point(0, 0));
-        this._cursorLine = new CursorLine(this._context, new Point(0, 0));
-
-        const enemy1 = new Enemy(
+        this._cursor = new Cursor(this._context, this._world, new Point(0, 0));
+        this._cursorLine = new CursorLine(
             this._context,
-            new Point(200, 200),
-            new Vector2d(0, 0),
-            new Size(50, 30),
-            3
+            this._world,
+            new Point(0, 0)
         );
-
-        const enemy2 = new Enemy(
-            this._context,
-            new Point(-200, -200),
-            new Vector2d(0, 0),
-            new Size(50, 30),
-            3
-        );
-
-        this._world.enemies.push(enemy1, enemy2);
 
         this.debug();
 
@@ -145,8 +151,8 @@ class Main {
         // Physics'n'logic stuff
         this.calculateRelativeMousePosition();
         this.calculateAngle();
-        this.handleVelocity();
-        this.handleFiring(deltaTime, this._world.player.rpm);
+        InputHandler.handleVelocity(this._world);
+        this.handleFiring(deltaTime);
         this.updateCursor();
 
         // Handle entity updating
@@ -161,24 +167,6 @@ class Main {
 
         // More game loop stuff
         this._lastTimestamp = Date.now();
-    }
-
-    private handleVelocity() {
-        const acceleration = 0.1;
-        if (InputHandler.downKeys.w) {
-            this._world.player.velocity.y -= acceleration;
-        }
-        if (InputHandler.downKeys.s) {
-            this._world.player.velocity.y += acceleration;
-        }
-        if (InputHandler.downKeys.a) {
-            this._world.player.velocity.x -= acceleration;
-        }
-        if (InputHandler.downKeys.d) {
-            this._world.player.velocity.x += acceleration;
-        }
-
-        this._world.player.highFriction = InputHandler.downKeys.space;
     }
 
     private generateStars(): void {
@@ -201,7 +189,8 @@ class Main {
                 pos,
                 undefined,
                 Helpers.randomBetween(0, 3),
-                Math.random()
+                Math.random(),
+                this._world
             );
             star.update();
         }
@@ -226,29 +215,9 @@ class Main {
         );
     }
 
-    private handleFiring(deltaTime: number, rpm: number): void {
-        this._timeSinceLastShot += deltaTime;
-        if (InputHandler.downKeys.m1 && this._timeSinceLastShot > 60 / rpm) {
-            this.createProjectile();
-            this._timeSinceLastShot = 0;
-        }
-    }
-
-    private createProjectile(): void {
-        const vX = Math.cos(this._world.player.angle - Math.PI / 2);
-        const vY = Math.sin(this._world.player.angle - Math.PI / 2);
-        const velocity = new Vector2d(vX, vY).multiply(5);
-
-        const p: Projectile = new Projectile(
-            this._context,
-            clone(this._world.player.position),
-            velocity,
-            this._world.player.angle,
-            5,
-            this._world.player.velocity
-        );
-
-        this._world.projectiles.push(p);
+    private handleFiring(deltaTime: number): void {
+        this._world.player.weaponPrimary?.onUpdate(deltaTime);
+        this._world.player.weaponSecondary?.onUpdate(deltaTime);
     }
 
     private countFps(): void {
@@ -290,9 +259,29 @@ class Main {
 
     private debug(): void {
         // DEBUG: Draw star at center
-        this._world.entities.push(
-            new Star(this._context, new Point(0, 0), null, 10, 1)
+        // this._world.entities.push(
+        //     new Star(this._context, new Point(0, 0), null, 10, 1, this._world)
+        // );
+
+        const enemy1 = new Enemy(
+            this._context,
+            this._world,
+            new Point(200, 200),
+            new Vector2d(0, 0),
+            new Size(200, 100),
+            1
         );
+
+        const enemy2 = new Enemy(
+            this._context,
+            this._world,
+            new Point(-200, -200),
+            new Vector2d(0, 0),
+            new Size(50, 30),
+            3
+        );
+
+        this._world.enemies.push(enemy1, enemy2);
     }
 
     public updateCursor(): void {
@@ -309,21 +298,17 @@ class Main {
         entities.push(...this._world.enemies);
         entities.push(this._cursorLine, this._cursor);
         entities.push(this._world.player);
-        entities.forEach((entity, index) => {
+        entities.forEach(entity => {
             entity.update(deltaTime);
 
             if (entity instanceof Projectile) {
                 const projectile = entity;
                 this._world.enemies.forEach(enemy => {
-                    if (projectile.position.isInside(enemy.hitBox)) {
+                    if (projectile.collidesWith(enemy)) {
                         enemy.dead = true;
-                        projectile.dead = true;
+                        projectile.onHit();
                     }
                 });
-
-                if (entity.dead) {
-                    this._world.projectiles.splice(index, 1);
-                }
             }
 
             if (entity instanceof Enemy) {
