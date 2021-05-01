@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Helpers } from '../../../services/helpers.service';
 import { Enemy } from '../../enemy.class';
-import { Point } from '../../point.class';
-import { Vector2d } from '../../vector2d.class';
+import { Vector2d } from '../../../classes/vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
+import { Point } from '../../../classes/point.class';
 
 export class RailgunProjectile extends Projectile {
     constructor(
@@ -26,12 +26,9 @@ export class RailgunProjectile extends Projectile {
     public lifetime = 500; // ms
     public speedFactor = 100;
     public color = 'rgba(255,255,255, 1)';
-
     private alphaReduction = 1 / this.lifetime;
     private alpha = 1;
-
     private passedLifetime = 0;
-
     public endPosition: Point;
 
     public draw(): void {
@@ -86,23 +83,13 @@ export class RailgunProjectile extends Projectile {
     }
 
     public collidesWith(enemy: Enemy): Point {
-        if (this.passedLifetime < 100) {
+        if (this.passedLifetime < 100 && this.endPosition) {
             this.initialUpdate = false;
 
-            let collision: Point;
-            let index = 0;
-            for (const point1 of enemy.hitBox) {
-                const point2 = enemy.hitBox[++index] || enemy.hitBox[0];
-                collision = Helpers.intersection(
-                    this.position,
-                    this.endPosition,
-                    point1,
-                    point2
-                );
-                if (collision) {
-                    return collision;
-                }
-            }
+            return Helpers.polyLineIntersection(enemy.hitBox, [
+                this.position,
+                this.endPosition
+            ]);
         }
     }
 }

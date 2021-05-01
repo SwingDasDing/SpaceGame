@@ -1,19 +1,18 @@
-import { remove } from 'lodash';
-import {
-    CursorLine,
-    Cursor,
-    Player,
-    Point,
-    Size,
-    Star,
-    Vector2d,
-    World,
-    Enemy,
-    Entity
-} from './classes/indexer';
-import { Projectile } from './classes/weapons/projectile.class';
+import 'regenerator-runtime/runtime';
+
+import { CursorLine } from './canvas-assets/cursor-line.class';
+import { Cursor } from './canvas-assets/cursor.class';
+import { Enemy } from './canvas-assets/enemy.class';
+import { Entity } from './canvas-assets/entity.class';
+import { Player } from './canvas-assets/player.class';
+import { Star } from './canvas-assets/star.class';
+import { World } from './canvas-assets/world.class';
+import { Point } from './classes/point.class';
+import { Size } from './classes/size.class';
+import { Vector2d } from './classes/vector2d.class';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
+import { AssetPreloader } from './services/asset-preloader.service';
 
 class Main {
     private _canvas: HTMLCanvasElement;
@@ -21,57 +20,30 @@ class Main {
     private _timerEl: HTMLSpanElement;
     private _playerPosXEl: HTMLSpanElement;
     private _playerPosYEl: HTMLSpanElement;
-
     private _context: CanvasRenderingContext2D;
     private _rAF: number = 0; // ms
     private _lastTimestamp = 0;
     private _timeSinceStart = 0;
-    private _timeSinceLastShot = 0;
-
     private _previousPos = new Point(0, 0);
-
     private _world = new World(new Size(10000, 10000));
-
     private _fpsVal: number = 0;
-    private _images: Map<number, HTMLImageElement> = new Map();
-
     private _relativeMousePosition: Point = new Point(0, 0);
-
     private _cursor: Cursor;
     private _cursorLine: CursorLine;
     private _backgroundImage: HTMLImageElement;
 
+    private _assetPreloaderService = new AssetPreloader();
+
     constructor() {
         this.getElements();
 
-        const shipImageUrls: Map<number, any> = new Map();
-
-        // shipImageUrls.set(1, require('./img/ship-1-256x256.png'));
-        shipImageUrls.set(2, require('./img/ship-2-256x256.png'));
-        // shipImageUrls.set(3, require('./img/ship-3-256x256.png'));
-        // shipImageUrls.set(4, require('./img/ship-4-256x256.png'));
-
-        shipImageUrls.forEach((url: string, index: number) => {
-            const image: HTMLImageElement = new Image(256, 256);
-            image.src = shipImageUrls.get(index);
-
-            image.onload = () => {
-                this._images.set(index, image);
-                this.init();
-            };
-        });
+        this._assetPreloaderService
+            .load()
+            .then(() => this.init())
+            .catch();
     }
 
     public init(): void {
-        console.log(
-            Helpers.intersection(
-                new Point(0, 0),
-                new Point(100, 100),
-                new Point(0, 100),
-                new Point(100, 0)
-            )
-        );
-
         this._context = this._canvas.getContext('2d');
         InputHandler.init(this._canvas, this._context);
 
@@ -98,8 +70,8 @@ class Main {
             initialPlayerPosition,
             initialPlayerVelocity,
             initialPlayerSize,
-            this._images.get(2),
-            0
+            this._assetPreloaderService.ships.find(ship => ship.id === '4'),
+            { preloaderService: this._assetPreloaderService }
         );
 
         this._cursor = new Cursor(this._context, this._world, new Point(0, 0));
@@ -155,6 +127,8 @@ class Main {
         this.handleFiring(deltaTime);
         this.updateCursor();
 
+        this._world.update();
+
         // Handle entity updating
         this.updateEntities(deltaTime);
 
@@ -189,8 +163,8 @@ class Main {
                 pos,
                 undefined,
                 Helpers.randomBetween(0, 3),
-                Math.random(),
-                this._world
+                this._world,
+                Math.random()
             );
             star.update();
         }
@@ -268,20 +242,42 @@ class Main {
             this._world,
             new Point(200, 200),
             new Vector2d(0, 0),
-            new Size(200, 100),
-            1
+            new Size(64, 64),
+            this._assetPreloaderService.ships.find(ship => ship.id === '1'),
+            0
         );
 
         const enemy2 = new Enemy(
             this._context,
             this._world,
-            new Point(-200, -200),
+            new Point(200, -200),
             new Vector2d(0, 0),
-            new Size(50, 30),
-            3
+            new Size(64, 64),
+            this._assetPreloaderService.ships.find(ship => ship.id === '2'),
+            0
         );
 
-        this._world.enemies.push(enemy1, enemy2);
+        const enemy3 = new Enemy(
+            this._context,
+            this._world,
+            new Point(-200, 200),
+            new Vector2d(0, 0),
+            new Size(64, 64),
+            this._assetPreloaderService.ships.find(ship => ship.id === '3'),
+            0
+        );
+
+        const enemy4 = new Enemy(
+            this._context,
+            this._world,
+            new Point(-200, -200),
+            new Vector2d(0, 0),
+            new Size(64, 64),
+            this._assetPreloaderService.ships.find(ship => ship.id === '4'),
+            0
+        );
+
+        this._world.enemies.push(enemy1, enemy2, enemy3, enemy4);
     }
 
     public updateCursor(): void {
@@ -298,27 +294,9 @@ class Main {
         entities.push(...this._world.enemies);
         entities.push(this._cursorLine, this._cursor);
         entities.push(this._world.player);
+
         entities.forEach(entity => {
             entity.update(deltaTime);
-
-            if (entity instanceof Projectile) {
-                const projectile = entity;
-                this._world.enemies.forEach(enemy => {
-                    if (projectile.collidesWith(enemy)) {
-                        enemy.dead = true;
-                        projectile.onHit();
-                    }
-                });
-            }
-
-            if (entity instanceof Enemy) {
-                if (entity.dead) {
-                    remove(
-                        this._world.enemies,
-                        enemy => enemy.id === entity.id
-                    );
-                }
-            }
         });
     }
 }

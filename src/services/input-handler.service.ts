@@ -1,8 +1,8 @@
 import { DownKeys } from '../classes/down-keys.class';
-import { Point } from '../classes/point.class';
-import { World } from '../classes/world.class';
+import { World } from '../canvas-assets/world.class';
 import { Keys } from '../enums/keys.enum';
 import { MouseButtons } from '../enums/mouse-buttons.enum';
+import { Point } from '../classes/point.class';
 
 export class InputHandler {
     public static downKeys: DownKeys = new DownKeys();
@@ -49,10 +49,13 @@ export class InputHandler {
         });
 
         window.addEventListener('keydown', (event: KeyboardEvent) => {
-            // console.log(event)
             switch (event.key) {
                 case Keys.W:
                     this.downKeys.w = true;
+                    break;
+
+                case Keys.A:
+                    this.downKeys.a = true;
                     break;
 
                 case Keys.S:
@@ -61,10 +64,6 @@ export class InputHandler {
 
                 case Keys.D:
                     this.downKeys.d = true;
-                    break;
-
-                case Keys.A:
-                    this.downKeys.a = true;
                     break;
 
                 case Keys.Space:

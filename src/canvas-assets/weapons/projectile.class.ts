@@ -1,9 +1,9 @@
 import { remove, uniqueId } from 'lodash';
-import { Enemy } from '../indexer';
 import { Entity } from '../entity.class';
-import { Point } from '../point.class';
-import { Vector2d } from '../vector2d.class';
+import { Vector2d } from '../../classes/vector2d.class';
 import { World } from '../world.class';
+import { Point } from '../../classes/point.class';
+import { Enemy } from '../enemy.class';
 
 export class Projectile extends Entity {
     constructor(
@@ -11,17 +11,25 @@ export class Projectile extends Entity {
         public world: World,
         public position: Point,
         public velocity: Vector2d,
-        public angle: number
+        public angle: number,
+        public services?: object
     ) {
-        super(context, world, position, velocity);
+        super(context, world, position, velocity, services);
     }
 
     public id = uniqueId();
     public dead: boolean = false;
-
+    public previousPosition: Point;
     public draw(): void {}
 
     public update(deltaTime: number): void {
+        this.world.enemies.forEach(enemy => {
+            if (this.collidesWith(enemy)) {
+                enemy.dead = true;
+                this.onHit();
+            }
+        });
+
         if (this.dead) {
             remove(
                 this.world.projectiles,
