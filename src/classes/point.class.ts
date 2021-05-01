@@ -51,4 +51,8 @@ export class Point {
 
         return inside;
     }
+
+    public toString(): string {
+        return `(${this.x},${this.y})`;
+    }
 }

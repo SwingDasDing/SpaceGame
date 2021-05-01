@@ -1,9 +1,11 @@
-import _ from 'lodash';
-import { Enemy } from '../../indexer';
-import { Point } from '../../point.class';
-import { Vector2d } from '../../vector2d.class';
+import _, { clone } from 'lodash';
+import { Vector2d } from '../../../classes/vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
+import { Point } from '../../../classes/point.class';
+import { Enemy } from '../../enemy.class';
+import { Helpers } from '../../../services/helpers.service';
+import { Size } from '../../../classes/size.class';
 
 export class RocketPodProjectile extends Projectile {
     constructor(
@@ -14,9 +16,11 @@ export class RocketPodProjectile extends Projectile {
         public angle: number,
         public radius: number,
         public image: HTMLImageElement,
+        public size: Size,
         public playerVelocity?: Vector2d
     ) {
         super(context, world, position, velocity, angle);
+        this.previousPosition = clone(this.position);
     }
 
     public startPosition: Point = _.clone(this.position);
@@ -25,7 +29,7 @@ export class RocketPodProjectile extends Projectile {
     public initialUpdate = true;
     public range = 2500;
     public lifetime: number = 6000; // ms
-    public speedFactor = 100;
+    public speedFactor = 150;
     public color = 'rgb(255,0,0)';
 
     public draw(): void {
@@ -35,8 +39,10 @@ export class RocketPodProjectile extends Projectile {
         this.context.rotate(this.angle);
         this.context.drawImage(
             this.image,
-            -this.image.width / 2,
-            -this.image.height / 2 + 15
+            -this.size.height / 2,
+            -this.size.width / 2,
+            this.size.height,
+            this.size.width
         );
 
         this.context.restore();
@@ -54,6 +60,7 @@ export class RocketPodProjectile extends Projectile {
         }
         super.update(deltaTime);
         this.draw();
+        this.previousPosition = clone(this.position);
 
         this.applyVelocity(deltaTime);
 
@@ -73,7 +80,10 @@ export class RocketPodProjectile extends Projectile {
         this.position.y += this.velocity.y * delta * this.speedFactor;
     }
 
-    public collidesWith(enemy: Enemy): boolean {
-        return this.position.isInside(enemy.hitBox);
+    public collidesWith(enemy: Enemy): Point {
+        return Helpers.polyLineIntersection(enemy.hitBox, [
+            this.position,
+            this.previousPosition
+        ]);
     }
 }

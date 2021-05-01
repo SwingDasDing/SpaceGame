@@ -1,5 +1,5 @@
 import { clone } from 'lodash';
-import { Vector2d } from '../../vector2d.class';
+import { Vector2d } from '../../../classes/vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
 import { Weapon } from '../weapon.class';
@@ -10,7 +10,9 @@ export class LaserGatling extends Weapon {
         super(world, context);
     }
 
-    public rpm: number = 800;
+    public rpm: number = 300;
+
+    public temp = false;
 
     public onUpdate(deltaTime: number): void {
         this._timeSinceLastShot += deltaTime;

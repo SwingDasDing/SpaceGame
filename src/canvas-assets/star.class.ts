@@ -1,7 +1,7 @@
 import { Entity } from './entity.class';
-import { Point } from './point.class';
-import { Vector2d } from './vector2d.class';
+import { Vector2d } from '../classes/vector2d.class';
 import { World } from './world.class';
+import { Point } from '../classes/point.class';
 
 export class Star extends Entity {
     constructor(
@@ -9,10 +9,11 @@ export class Star extends Entity {
         public position: Point,
         public velocity: Vector2d,
         public radius: number,
+        public world: World,
         public brightness: number = 1,
-        public world: World
+        public services?: object
     ) {
-        super(context, world, position, velocity);
+        super(context, world, position, velocity, services);
     }
 
     public draw(): void {

@@ -1,5 +1,7 @@
 import { clone } from 'lodash';
-import { Vector2d } from '../../vector2d.class';
+import { Size } from '../../../classes/size.class';
+import { Vector2d } from '../../../classes/vector2d.class';
+import { AssetPreloader } from '../../../services/asset-preloader.service';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
 import { Weapon } from '../weapon.class';
@@ -8,9 +10,15 @@ import { RocketPodProjectile } from './rocket-pod-projectile.class';
 export class RocketPod extends Weapon {
     private _image: HTMLImageElement = new Image();
 
-    constructor(public world: World, public context: CanvasRenderingContext2D) {
+    constructor(
+        public world: World,
+        public context: CanvasRenderingContext2D,
+        public services: any
+    ) {
         super(world, context);
-        this._image.src = require('../../../temp/rocket-pod-projectile.png');
+        this._image = (services.preloaderService as AssetPreloader).images.get(
+            './images/rocket-pod-projectile.png'
+        );
     }
 
     public rpm: number = 100;
@@ -38,6 +46,7 @@ export class RocketPod extends Weapon {
             this.world.player.angle,
             5,
             this._image,
+            new Size(10, 50),
             this.world.player.velocity
         );
         return p;

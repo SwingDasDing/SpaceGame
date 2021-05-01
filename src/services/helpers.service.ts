@@ -1,4 +1,4 @@
-import { Point } from '../classes/indexer';
+import { Point } from '../classes/point.class';
 
 export class Helpers {
     public static randomBetween(min: number, max: number): number {
@@ -42,5 +42,20 @@ export class Helpers {
         }
 
         return new Point(from1.x + lambda * dX, from1.y + lambda * dY);
+    }
+
+    public static polyLineIntersection(
+        polygon: Point[],
+        line: [Point, Point]
+    ): Point {
+        let collision: Point;
+        let index = 0;
+        for (const point1 of polygon) {
+            const point2 = polygon[++index] || polygon[0];
+            collision = Helpers.intersection(line[0], line[1], point1, point2);
+            if (collision) {
+                return collision;
+            }
+        }
     }
 }

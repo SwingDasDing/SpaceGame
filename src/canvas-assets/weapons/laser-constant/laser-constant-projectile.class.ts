@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Helpers } from '../../../services/helpers.service';
 import { Enemy } from '../../enemy.class';
-import { Point } from '../../point.class';
-import { Vector2d } from '../../vector2d.class';
+import { Vector2d } from '../../../classes/vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
+import { Point } from '../../../classes/point.class';
 
 export class LaserConstantProjectile extends Projectile {
     constructor(
@@ -39,11 +39,6 @@ export class LaserConstantProjectile extends Projectile {
         this.context.lineCap = 'round';
         this.context.shadowBlur = 10;
 
-        this.endPosition = new Point(
-            this.position.x,
-            this.position.y - this.length
-        ).rotate(this.position, -this.angle);
-
         this.context.beginPath();
         this.context.moveTo(this.position.x, this.position.y);
         this.context.lineTo(this.endPosition.x, this.endPosition.y);
@@ -64,6 +59,11 @@ export class LaserConstantProjectile extends Projectile {
             this.initialUpdate = false;
         }
 
+        this.endPosition = new Point(
+            this.position.x,
+            this.position.y - this.length
+        ).rotate(this.position, -this.angle);
+
         super.update(deltaTime);
 
         this.draw();
@@ -79,20 +79,15 @@ export class LaserConstantProjectile extends Projectile {
     }
 
     public collidesWith(enemy: Enemy): Point {
-        let collision: Point;
+        const collisionPos = Helpers.polyLineIntersection(enemy.hitBox, [
+            this.position,
+            this.endPosition
+        ]);
 
-        let index = 0;
-        for (const point1 of enemy.hitBox) {
-            const point2 = enemy.hitBox[++index] || enemy.hitBox[0];
-            collision = Helpers.intersection(
-                this.position,
-                this.endPosition,
-                point1,
-                point2
-            );
-            if (collision) {
-                return collision;
-            }
+        if (collisionPos) {
+            this.endPosition = collisionPos;
         }
+
+        return collisionPos;
     }
 }

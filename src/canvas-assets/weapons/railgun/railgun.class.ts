@@ -1,5 +1,5 @@
 import { clone } from 'lodash';
-import { Vector2d } from '../../vector2d.class';
+import { Vector2d } from '../../../classes/vector2d.class';
 import { World } from '../../world.class';
 import { Projectile } from '../projectile.class';
 import { Weapon } from '../weapon.class';
