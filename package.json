@@ -24,8 +24,7 @@
     },
     "dependencies": {
         "lodash": "^4.17.20",
-        "sass-loader": "^10.1.0",
-        "upng-js": "^2.1.0"
+        "sass-loader": "^10.1.0"
     },
     "staticFiles": {
         "staticPath": [

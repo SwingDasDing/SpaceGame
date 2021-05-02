@@ -5,6 +5,9 @@ import { Point } from '../classes/point.class';
 import { World } from './world.class';
 import { Size } from '../classes/size.class';
 import { ShipModel } from '../classes/ship-model.class';
+import { Projectile } from './weapons/projectile.class';
+import { Helpers } from '../services/helpers.service';
+// import { Explosion } from './explosion.class';
 
 export class Enemy extends Ship {
     constructor(
@@ -23,27 +26,19 @@ export class Enemy extends Ship {
 
     private _angleToPlayer: number = 0;
 
+    //private explosion: Explosion;
+
     public draw(): void {
-        this.context.save();
-
-        this.context.translate(this.position.x, this.position.y);
-        this.context.rotate(-this.angle);
-        if (this.shipModel.image?.src) {
-            this.context.drawImage(
-                this.shipModel.image,
-                -(this.size.width / 2),
-                -(this.size.height / 2),
-                this.size.width,
-                this.size.height
-            );
-        }
-
-        this.context.restore();
-
+        this.drawShip();
+        this.drawHealthbar();
         this.calculateHitbox();
     }
 
     public update(deltaTime: number): void {
+        // if (this.explosion) {
+        //     this.explosion.update(deltaTime);
+        // }
+
         if (this.dead) {
             this.onDestroy();
         }
@@ -63,12 +58,16 @@ export class Enemy extends Ship {
         this.position.x += this.velocity.x * delta * this.speed;
         this.position.y += this.velocity.y * delta * this.speed;
     }
-    public onHit(): void {}
+    public onHit(projectile: Projectile): void {
+        this.health -= projectile.damage;
+        if (this.health <= 0) {
+            this.dead = true;
+            this.onDestroy();
+        }
+    }
 
     public onDestroy(): void {
-        this.context.beginPath();
-        this.context.arc(this.position.x, this.position.y, 50, 0, 2 * Math.PI);
-        this.context.fill();
+        //this.explosion = new Explosion(this.context, this.position, 10, 100);
         setTimeout(() => {
             remove(this.world.enemies, enemy => enemy.id === this.id);
         }, 1000);
@@ -84,6 +83,10 @@ export class Enemy extends Ship {
     }
 
     public calculateHitbox(): void {
+        if (this.dead) {
+            this.hitBox = [];
+            return;
+        }
         this.hitBox = clone(this.shipModel.hitBox);
         this.hitBox.forEach((point: Point, index: number) => {
             this.hitBox[index] = point
@@ -105,5 +108,69 @@ export class Enemy extends Ship {
             this.context.fill();
             this.context.restore();
         }
+    }
+
+    public drawShip() {
+        this.context.save();
+
+        this.context.translate(this.position.x, this.position.y);
+        this.context.rotate(-this.angle);
+        // if (this.shipModel.image?.src) {
+        //     this.context.drawImage(
+        //         this.shipModel.image,
+        //         -(this.size.width / 2),
+        //         -(this.size.height / 2),
+        //         this.size.width,
+        //         this.size.height
+        //     );
+        // }
+
+        this.context.restore();
+    }
+
+    public drawHealthbar() {
+        const healthbarHeight = -15;
+        this.context.save();
+
+        this.context.translate(
+            this.position.x,
+            this.position.y + -this.size.height
+        );
+
+        this.context.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        this.context.fillRect(
+            -this.size.width / 2,
+            0,
+            this.size.width,
+            healthbarHeight
+        );
+
+        this.context.fillStyle = 'rgba(0, 255, 0, 0.5)';
+        let healthWidth: number = 0;
+        if (this.health > 0) {
+            healthWidth = Helpers.mapRange(
+                this.health,
+                0,
+                this.maxHealth,
+                0,
+                this.size.width
+            );
+        }
+
+        this.context.fillRect(
+            -this.size.width / 2,
+            0,
+            healthWidth,
+            healthbarHeight
+        );
+
+        this.context.fillStyle = 'rgb(255, 255, 255)';
+        const healthString = (this.health <= 0 ? 0 : this.health).toString();
+        this.context.textBaseline = 'middle';
+        this.context.textAlign = 'center';
+        this.context.font = '14px Arial';
+        this.context.fillText(healthString, 0, healthbarHeight / 2 + 1);
+
+        this.context.restore();
     }
 }

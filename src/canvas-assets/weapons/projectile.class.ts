@@ -21,11 +21,12 @@ export class Projectile extends Entity {
     public dead: boolean = false;
     public previousPosition: Point;
     public draw(): void {}
+    public damage: number = 10;
 
     public update(deltaTime: number): void {
         this.world.enemies.forEach(enemy => {
             if (this.collidesWith(enemy)) {
-                enemy.dead = true;
+                enemy.onHit(this);
                 this.onHit();
             }
         });

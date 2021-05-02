@@ -17,6 +17,7 @@ export class RailgunProjectile extends Projectile {
         public playerVelocity: Vector2d
     ) {
         super(context, world, position, velocity, angle);
+        this.damage = 100;
     }
 
     public startPosition: Point = _.clone(this.position);
@@ -30,6 +31,7 @@ export class RailgunProjectile extends Projectile {
     private alpha = 1;
     private passedLifetime = 0;
     public endPosition: Point;
+    public firstUpdate = true;
 
     public draw(): void {
         this.context.save();
@@ -66,13 +68,14 @@ export class RailgunProjectile extends Projectile {
         this.alpha -= this.alphaReduction * (deltaTime * 1000);
         this.color = `rgba(255,255,255, ${this.alpha})`;
 
-        super.update(deltaTime);
-
         this.draw();
+
+        super.update(deltaTime);
 
         this.applyVelocity(deltaTime);
 
         this.passedLifetime += deltaTime * 1000;
+        this.firstUpdate = false;
     }
 
     public onHit(): void {}
@@ -83,7 +86,7 @@ export class RailgunProjectile extends Projectile {
     }
 
     public collidesWith(enemy: Enemy): Point {
-        if (this.passedLifetime < 100 && this.endPosition) {
+        if (this.firstUpdate && this.endPosition) {
             this.initialUpdate = false;
 
             return Helpers.polyLineIntersection(enemy.hitBox, [

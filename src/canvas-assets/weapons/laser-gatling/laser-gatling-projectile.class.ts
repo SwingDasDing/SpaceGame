@@ -19,6 +19,7 @@ export class LaserGatlingProjectile extends Projectile {
     ) {
         super(context, world, position, velocity, angle, services);
         this.previousPosition = clone(this.position);
+        this.damage = 10;
     }
 
     public startPosition: Point = clone(this.position);

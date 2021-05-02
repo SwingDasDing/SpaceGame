@@ -21,6 +21,7 @@ export class RocketPodProjectile extends Projectile {
     ) {
         super(context, world, position, velocity, angle);
         this.previousPosition = clone(this.position);
+        this.damage = 50;
     }
 
     public startPosition: Point = _.clone(this.position);

@@ -28,6 +28,7 @@ export class AssetPreloader {
             const tempShip = new ShipModel();
             tempShip.name = shipObject.name;
             tempShip.image = this.images.get(shipObject.imageUrl);
+            tempShip.health = shipObject.health;
             tempShip.size = new Size(
                 shipObject.size.height,
                 shipObject.size.width
