@@ -30,6 +30,7 @@ export class LaserGatlingProjectile extends Projectile {
     public lifetime: number = 3000; // ms
     public speedFactor = 1000;
     public color = 'rgb(255,0,0)';
+    private passedLifetime: number = 0;
 
     public draw(): void {
         this.context.save();
@@ -63,12 +64,14 @@ export class LaserGatlingProjectile extends Projectile {
         if (this.initialUpdate) {
             // this.velocity = this.velocity.add(this.playerVelocity.divide(4)); // Unsure if this makes the aiming to hard to enjoy
 
-            setTimeout(() => {
-                this.dead = true;
-            }, this.lifetime);
-
             this.initialUpdate = false;
         }
+
+        this.passedLifetime += deltaTime;
+        if (this.passedLifetime * 1000 >= this.lifetime) {
+            this.dead = true;
+        }
+
         super.update(deltaTime);
         this.draw();
         this.previousPosition = clone(this.position);

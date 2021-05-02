@@ -36,8 +36,12 @@ export class Player extends Ship {
         );
     }
 
-    public weaponPrimary: Weapon = new LaserGatling(this.world, this.context);
-    public weaponSecondary: Weapon = new Railgun(this.world, this.context);
+    public weaponPrimary: Weapon = new LaserConstant(this.world, this.context);
+    public weaponSecondary: Weapon = new RocketPod(
+        this.world,
+        this.context,
+        this.services
+    );
 
     public speed = 200;
     public highFriction: boolean = false;

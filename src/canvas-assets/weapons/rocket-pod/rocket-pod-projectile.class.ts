@@ -6,6 +6,7 @@ import { Point } from '../../../classes/point.class';
 import { Enemy } from '../../enemy.class';
 import { Helpers } from '../../../services/helpers.service';
 import { Size } from '../../../classes/size.class';
+import { Explosion } from '../../explosion.class';
 
 export class RocketPodProjectile extends Projectile {
     constructor(
@@ -32,6 +33,7 @@ export class RocketPodProjectile extends Projectile {
     public lifetime: number = 6000; // ms
     public speedFactor = 150;
     public color = 'rgb(255,0,0)';
+    private passedLifetime: number = 0;
 
     public draw(): void {
         this.context.save();
@@ -53,12 +55,13 @@ export class RocketPodProjectile extends Projectile {
         if (this.initialUpdate) {
             this.velocity = this.velocity.add(this.playerVelocity.divide(4)); // Unsure if this makes the aiming to hard to enjoy
 
-            setTimeout(() => {
-                this.dead = true;
-            }, this.lifetime);
-
             this.initialUpdate = false;
         }
+        this.passedLifetime += deltaTime;
+        if (this.passedLifetime * 1000 >= this.lifetime) {
+            this.dead = true;
+        }
+
         super.update(deltaTime);
         this.draw();
         this.previousPosition = clone(this.position);
@@ -68,11 +71,13 @@ export class RocketPodProjectile extends Projectile {
         this.distanceTravelled = this.startPosition.distanceTo(this.position);
 
         if (this.distanceTravelled >= this.range) {
+            this.explode();
             this.dead = true;
         }
     }
 
     public onHit(): void {
+        this.explode();
         this.dead = true;
     }
 
@@ -86,5 +91,11 @@ export class RocketPodProjectile extends Projectile {
             this.position,
             this.previousPosition
         ]);
+    }
+
+    public explode() {
+        this.world.explosions.push(
+            new Explosion(this.context, this.world, this.position, 0.6, 2, true)
+        );
     }
 }

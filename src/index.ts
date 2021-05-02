@@ -294,6 +294,7 @@ class Main {
         entities.push(...this._world.enemies);
         entities.push(this._cursorLine, this._cursor);
         entities.push(this._world.player);
+        entities.push(...this._world.explosions);
 
         entities.forEach(entity => {
             entity.update(deltaTime);

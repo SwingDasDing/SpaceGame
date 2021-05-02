@@ -7,7 +7,7 @@ import { Size } from '../classes/size.class';
 import { ShipModel } from '../classes/ship-model.class';
 import { Projectile } from './weapons/projectile.class';
 import { Helpers } from '../services/helpers.service';
-// import { Explosion } from './explosion.class';
+import { Explosion } from './explosion.class';
 
 export class Enemy extends Ship {
     constructor(
@@ -26,7 +26,7 @@ export class Enemy extends Ship {
 
     private _angleToPlayer: number = 0;
 
-    //private explosion: Explosion;
+    private explosion: Explosion;
 
     public draw(): void {
         this.drawShip();
@@ -35,15 +35,14 @@ export class Enemy extends Ship {
     }
 
     public update(deltaTime: number): void {
-        // if (this.explosion) {
-        //     this.explosion.update(deltaTime);
-        // }
-
-        if (this.dead) {
-            this.onDestroy();
+        if (this.explosion) {
+            this.explosion.position = this.position;
+            this.explosion.update(deltaTime);
+            this.angle += 0.05;
+        } else {
+            this.calculateAngle();
+            this.angle = this._angleToPlayer;
         }
-        this.calculateAngle();
-        this.angle = this._angleToPlayer;
 
         this.velocity = this.velocity.multiply(
             this.highFriction
@@ -51,6 +50,7 @@ export class Enemy extends Ship {
                 : this.defaultFrictionFactor
         );
         this.applyVelocity(deltaTime);
+
         this.draw();
     }
 
@@ -60,14 +60,20 @@ export class Enemy extends Ship {
     }
     public onHit(projectile: Projectile): void {
         this.health -= projectile.damage;
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.dead) {
             this.dead = true;
             this.onDestroy();
         }
     }
 
     public onDestroy(): void {
-        //this.explosion = new Explosion(this.context, this.position, 10, 100);
+        this.explosion = new Explosion(
+            this.context,
+            this.world,
+            this.position,
+            2,
+            2
+        );
         setTimeout(() => {
             remove(this.world.enemies, enemy => enemy.id === this.id);
         }, 1000);
@@ -115,17 +121,21 @@ export class Enemy extends Ship {
 
         this.context.translate(this.position.x, this.position.y);
         this.context.rotate(-this.angle);
-        // if (this.shipModel.image?.src) {
-        //     this.context.drawImage(
-        //         this.shipModel.image,
-        //         -(this.size.width / 2),
-        //         -(this.size.height / 2),
-        //         this.size.width,
-        //         this.size.height
-        //     );
-        // }
+        if (this.shipModel.image?.src) {
+            this.context.drawImage(
+                this.shipModel.image,
+                -(this.size.width / 2),
+                -(this.size.height / 2),
+                this.size.width,
+                this.size.height
+            );
+        }
 
         this.context.restore();
+
+        if (this.explosion) {
+            this.explosion.draw();
+        }
     }
 
     public drawHealthbar() {

@@ -9,20 +9,21 @@ const recur = previousPath => {
     const fileNames = fs.readdirSync(previousPath);
 
     for (const name of fileNames) {
-        const currentPath = previousPath + name + '/';
+        const currentPath = previousPath + name;
 
         if (
             fs.existsSync(currentPath) &&
             fs.lstatSync(currentPath).isDirectory()
         ) {
-            recur(currentPath);
+            recur(currentPath + '/');
         }
-        if (fs.lstatSync(currentPath).isFile()) {
-            files.push(
-                currentPath
-                    .substring(0, currentPath.length - 1)
-                    .replace('dist/', '')
-            );
+        if (
+            fs.lstatSync(currentPath).isFile() &&
+            (currentPath.endsWith('png') ||
+                currentPath.endsWith('jpg') ||
+                currentPath.endsWith('jpeg'))
+        ) {
+            files.push(currentPath.replace('dist/', ''));
         }
     }
     return files;
