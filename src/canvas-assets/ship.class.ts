@@ -8,6 +8,7 @@ import { World } from './world.class';
 import { ShipModel } from '../classes/ship-model.class';
 import { Point } from '../classes/point.class';
 import { Size } from '../classes/size.class';
+import { Projectile } from './weapons/projectile.class';
 
 export class Ship extends Entity {
     constructor(
@@ -17,8 +18,8 @@ export class Ship extends Entity {
         public velocity: Vector2d,
         public size: Size,
         public shipModel: ShipModel,
-        public services: object,
-        public angle?: number
+        public angle?: number,
+        public services?: object
     ) {
         super(context, world, position, velocity, services);
     }
@@ -31,6 +32,8 @@ export class Ship extends Entity {
     public defaultFrictionFactor = 0.995;
     public highFrictionFactor = 0.9;
     public hitBox: Point[] = [];
+    public maxHealth: number = this.shipModel.health;
+    public health: number = this.shipModel.health;
 
     public draw(): void {}
 
@@ -38,7 +41,7 @@ export class Ship extends Entity {
 
     public applyVelocity(delta: number): void {}
 
-    public onHit(): void {}
+    public onHit(projectile: Projectile): void {}
 
     public onDestroy(): void {}
 }

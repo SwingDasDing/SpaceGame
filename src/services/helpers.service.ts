@@ -2,7 +2,7 @@ import { Point } from '../classes/point.class';
 
 export class Helpers {
     public static randomBetween(min: number, max: number): number {
-        return Math.floor(Math.random() * (max + min)) - min;
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     public static clamp(value: number, min: number, max: number): number {
@@ -57,5 +57,26 @@ export class Helpers {
                 return collision;
             }
         }
+    }
+
+    public static mapRange(
+        value: number,
+        low1: number,
+        high1: number,
+        low2: number,
+        high2: number
+    ) {
+        return low2 + ((high2 - low2) * (value - low1)) / (high1 - low1);
+    }
+
+    public static shuffleArray(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+
+        return array;
     }
 }

@@ -17,6 +17,7 @@ export class LaserConstantProjectile extends Projectile {
         public playerVelocity: Vector2d
     ) {
         super(context, world, position, velocity, angle);
+        this.damage = 1;
     }
 
     public startPosition: Point = _.clone(this.position);

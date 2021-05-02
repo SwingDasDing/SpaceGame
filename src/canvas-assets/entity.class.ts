@@ -9,7 +9,6 @@ export class Entity {
         public world: World,
         public position: Point,
         public velocity: Vector2d,
-
         public services?: object
     ) {}
 

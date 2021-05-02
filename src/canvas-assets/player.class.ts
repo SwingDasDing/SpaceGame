@@ -31,8 +31,8 @@ export class Player extends Ship {
             velocity,
             size,
             shipModel,
-            services,
-            angle
+            angle,
+            services
         );
     }
 

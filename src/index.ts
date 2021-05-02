@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime';
-
 import { CursorLine } from './canvas-assets/cursor-line.class';
 import { Cursor } from './canvas-assets/cursor.class';
 import { Enemy } from './canvas-assets/enemy.class';
@@ -7,12 +6,13 @@ import { Entity } from './canvas-assets/entity.class';
 import { Player } from './canvas-assets/player.class';
 import { Star } from './canvas-assets/star.class';
 import { World } from './canvas-assets/world.class';
+
 import { Point } from './classes/point.class';
 import { Size } from './classes/size.class';
 import { Vector2d } from './classes/vector2d.class';
+import { AssetPreloader } from './services/asset-preloader.service';
 import { Helpers } from './services/helpers.service';
 import { InputHandler } from './services/input-handler.service';
-import { AssetPreloader } from './services/asset-preloader.service';
 
 class Main {
     private _canvas: HTMLCanvasElement;
@@ -294,6 +294,7 @@ class Main {
         entities.push(...this._world.enemies);
         entities.push(this._cursorLine, this._cursor);
         entities.push(this._world.player);
+        entities.push(...this._world.explosions);
 
         entities.forEach(entity => {
             entity.update(deltaTime);
