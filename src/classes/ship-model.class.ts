@@ -10,4 +10,5 @@ export class ShipModel {
     public size: Size;
     public hitBox: Point[];
     public health: number;
+    public detectionRange: number;
 }

@@ -70,7 +70,7 @@ class Main {
             initialPlayerPosition,
             initialPlayerVelocity,
             initialPlayerSize,
-            this._assetPreloaderService.ships.find(ship => ship.id === '4'),
+            this._assetPreloaderService.ships.find(ship => ship.id === '2'),
             { preloaderService: this._assetPreloaderService }
         );
 
@@ -232,18 +232,13 @@ class Main {
     }
 
     private debug(): void {
-        // DEBUG: Draw star at center
-        // this._world.entities.push(
-        //     new Star(this._context, new Point(0, 0), null, 10, 1, this._world)
-        // );
-
         const enemy1 = new Enemy(
             this._context,
             this._world,
             new Point(200, 200),
             new Vector2d(0, 0),
             new Size(64, 64),
-            this._assetPreloaderService.ships.find(ship => ship.id === '1'),
+            this._assetPreloaderService.ships.find(ship => ship.id === '4'),
             0
         );
 
@@ -253,7 +248,7 @@ class Main {
             new Point(200, -200),
             new Vector2d(0, 0),
             new Size(64, 64),
-            this._assetPreloaderService.ships.find(ship => ship.id === '2'),
+            this._assetPreloaderService.ships.find(ship => ship.id === '3'),
             0
         );
 
@@ -263,7 +258,7 @@ class Main {
             new Point(-200, 200),
             new Vector2d(0, 0),
             new Size(64, 64),
-            this._assetPreloaderService.ships.find(ship => ship.id === '3'),
+            this._assetPreloaderService.ships.find(ship => ship.id === '2'),
             0
         );
 
@@ -273,7 +268,7 @@ class Main {
             new Point(-200, -200),
             new Vector2d(0, 0),
             new Size(64, 64),
-            this._assetPreloaderService.ships.find(ship => ship.id === '4'),
+            this._assetPreloaderService.ships.find(ship => ship.id === '1'),
             0
         );
 

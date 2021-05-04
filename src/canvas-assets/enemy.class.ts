@@ -24,9 +24,15 @@ export class Enemy extends Ship {
 
     public distanceToPlayer: number;
 
-    private _angleToPlayer: number = 0;
+    private _acceleration: Vector2d = new Vector2d(0, 0);
+    public defaultFrictionFactor = 0.9;
 
-    private explosion: Explosion;
+    private _angleToPlayer: number = 0;
+    private _explosion: Explosion;
+    private _timeUntilNextIdleMove: number = 0;
+
+    private _destinationPosition: Point = Point.Empty;
+    private currentState: EnemyState = EnemyState.Idle;
 
     public draw(): void {
         this.drawShip();
@@ -35,26 +41,27 @@ export class Enemy extends Ship {
     }
 
     public update(deltaTime: number): void {
-        if (this.explosion) {
-            this.explosion.position = this.position;
-            this.explosion.update(deltaTime);
+        if (this._explosion) {
+            this._explosion.position = this.position;
+            this._explosion.update(deltaTime);
             this.angle += 0.05;
         } else {
-            this.calculateAngle();
-            this.angle = this._angleToPlayer;
+            this.handleEnemyStates(deltaTime);
         }
 
-        this.velocity = this.velocity.multiply(
-            this.highFriction
-                ? this.highFrictionFactor
-                : this.defaultFrictionFactor
-        );
+        this.applyAcceleration();
         this.applyVelocity(deltaTime);
 
         this.draw();
     }
+    public applyAcceleration(): void {
+        this.velocity.x += this._acceleration.x;
+        this.velocity.y += this._acceleration.y;
+    }
 
     public applyVelocity(delta: number): void {
+        this.velocity = this.velocity.multiply(this.defaultFrictionFactor);
+
         this.position.x += this.velocity.x * delta * this.speed;
         this.position.y += this.velocity.y * delta * this.speed;
     }
@@ -67,7 +74,7 @@ export class Enemy extends Ship {
     }
 
     public onDestroy(): void {
-        this.explosion = new Explosion(
+        this._explosion = new Explosion(
             this.context,
             this.world,
             this.position,
@@ -133,8 +140,8 @@ export class Enemy extends Ship {
 
         this.context.restore();
 
-        if (this.explosion) {
-            this.explosion.draw();
+        if (this._explosion) {
+            this._explosion.draw();
         }
     }
 
@@ -183,4 +190,60 @@ export class Enemy extends Ship {
 
         this.context.restore();
     }
+
+    public moveTo(destination: Point) {
+        const acceleration = new Vector2d(
+            destination.x,
+            destination.y
+        ).subtract(new Vector2d(this.position.x, this.position.y));
+        if (acceleration.getMagnitude() > 100) {
+            this._acceleration = acceleration.clamp(0.4);
+            this.angle =
+                -Math.atan2(
+                    destination.y - this.position.y,
+                    destination.x - this.position.x
+                ) -
+                Math.PI / 2;
+        } else {
+            this._acceleration = new Vector2d(0, 0);
+        }
+    }
+
+    private handleEnemyStates(deltaTime: number): void {
+        this._timeUntilNextIdleMove -= deltaTime * 1000;
+
+        switch (this.currentState) {
+            case EnemyState.Idle:
+                if (this._timeUntilNextIdleMove <= 0) {
+                    this._timeUntilNextIdleMove = Helpers.randomBetween(
+                        2000,
+                        4000
+                    );
+                    this._destinationPosition = new Point(
+                        Helpers.randomBetween(-500, 500),
+                        Helpers.randomBetween(-500, 500)
+                    );
+                } else {
+                }
+                break;
+            case EnemyState.MovingToPos:
+                break;
+            case EnemyState.Chasing:
+                break;
+            case EnemyState.Attacking:
+                break;
+
+            default:
+                break;
+        }
+
+        this.moveTo(this._destinationPosition);
+    }
+}
+
+export enum EnemyState {
+    Idle,
+    MovingToPos,
+    Chasing,
+    Attacking
 }

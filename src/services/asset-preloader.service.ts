@@ -29,6 +29,7 @@ export class AssetPreloader {
             tempShip.name = shipObject.name;
             tempShip.image = this.images.get(shipObject.imageUrl);
             tempShip.health = shipObject.health;
+            tempShip.detectionRange = shipObject.detectionRange;
             tempShip.size = new Size(
                 shipObject.size.height,
                 shipObject.size.width
